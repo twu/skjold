@@ -153,11 +153,7 @@ def audit_(
     Checks a given dependency file against advisory databases.
 
     \b
-    FILE is the name of the poetry.lock file to check.
-
-    Fusce felis tortor, ultricies at ultrices quis, posuere ut nulla.
-    Suspendisse id lorem maximus purus semper maximus vel ullamcorper tortor.
-    Sed interdum orci in eros cursus, vitae feugiat nibh finibus.
+    FILE is the path to the dependency file to audit.
     """
     config.report_only = report_only
     config.report_format = report_format

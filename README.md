@@ -1,27 +1,28 @@
-*NOTE:* This _thing_ is only a few days old. It works but the code is _shit_ and may contain bugs!
+*NOTE:* This _thing_ is only a few days old. It works but the code is _shit_ and probably contains bugs!
 ```
         .         .    .      Skjold /skjɔl/
     ,-. | , . ,-. |  ,-|
-    `-. |<  | | | |  | |      Compare your pinned project dependencies against several
+    `-. |<  | | | |  | |      Audit Python project dependencies against several
     `-' ' ` | `-' `' `-´      security advisory databases providing lists of CVEs and
            `'                 known malicious or unsafe packages.
 ```
 
 # Skjold
-> Compare your pinned project dependencies against several security advisory databases providing lists of CVEs and known malicious or unsafe packages.
+> Audit Python project dependencies against several security advisory databases providing lists of CVEs and known malicious or unsafe packages.
 
 ## Introduction
-It currently fetches advisories from the following sources:
+It currently supports fetching advisories from the following sources:
 
 - [GitHub Advisory Database](https://github.com/advisories)
 - [PyUP.io safety-db](https://github.com/pyupio/safety-db)
 - [GitLab gemnasium-db](https://gitlab.com/gitlab-org/security-products/gemnasium-db)
 
-They can be enabled individually. There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates.
+Unless configured explicitly `skjold` will run the given packages against all of them. There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates. Source can be added disabled by setting `sources` list (see _Configuration_).
 
 ## Why?
-First, this is not an attempt at providing a fire and forget solution for auditing dependencies. I initially created this to replace `safety` which at least for the _free_ version seems to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282)). I also wanted something I can run locally, use on my private projects without having to open source them, letting anyone read it or kill my wallet. I rely on [/r/mk](https://reddit.com/r/MechanicalKeyboards) for that.
-It is currently mainly used during CI builds and before deploying/publishing containers or packages.
+First and foremost, this is not an attempt at providing a fire and forget solution for auditing dependencies. I initially created this to replace `safety` which at least for the _free_ version seems to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282)). I also wanted something I can run locally, use on my private projects without having to open source them, letting anyone read my code or kill my wallet. I rely on [/r/mk](https://reddit.com/r/MechanicalKeyboards) for that.
+
+I currently use it during CI builds and before deploying/publishing containers or packages.
 
 ## Installation
 `skjold` can be installed from either [PyPI](https://pypi.org/project/beautifulsoup4/) or directly from [Github](https://github.com/twu/skylt) using `pip`:
@@ -31,31 +32,29 @@ pip install -e https://github.com/twu/skjold.git@v0.1.0  # Install from Github
 pip install skjold                                       # Install from PyPI
 ```
 
-This should provide you with a script named `skjold` that you can invoke.
+This should provide a script named `skjold` that can then be invoked. See below.
 
 ## Usage
-
 ```sh
 $ pip freeze | skjold -v audit -
 ```
 
-When running `audit` you can either provide a path to a _frozen_ `requirements.txt`, a `poetry.lock` or a `Pipfile.lock` file. Alternatively, dependencies can also passed in via `stdin`  (formatted as `package==version`).
+When running `audit` one can either provide a path to a _frozen_ `requirements.txt`, a `poetry.lock` or a `Pipfile.lock` file. Alternatively, dependencies can also be passed in via `stdin`  (formatted as `package==version`).
 
-`skjold` will maintain a local cache that it will update when run and in regular intervals (see _Configuration_).
-These `cache_dir` and `cache_expires` settings can be adjusted by setting them in your projects `pyproject.toml` (see _Configuration_). The `cache_dir`will be created automatically, and if not otherwise set will be put into `~/.skjold/cache`.
+`skjold` will maintain a local cache (under `cache_dir`) that will expire automatically after `cache_expires` has passed. The `cache_dir` and `cache_expires` can be adjusted by setting them in  `tools.skjold` section of the projects `pyproject.toml` (see _Configuration_ for more details). The `cache_dir`will be created automatically, and by default unless otherwise specified will be located under `$HOME/.skjold/cache`.
 
-You can either configure `skjold` in the `tool.skjold` section of your `pyproject.toml`or pass options and sources via the command line.
+For further options please read `skjold --help` and/or `skjold audit --help`.
 
 ### Examples
 
 ```sh
-# Using pip, checking against GitHub and PyUP.
-$ pip freeze | skjold audit -s github -s pyup -
+# Using pip freeze. Checking against GitHub only.
+$ pip freeze | skjold audit -s github -
 
-# The same, but reading the dependencies from a file.
-$ skjold audit -s github -s pyup ./requirements.txt
-$ skjold audit -s github ./poetry.lock
-$ skjold audit -s gemnasium ./Pipenv.lock
+# Be verbose. Read directly from supported formats.
+$ skjold -v audit requirements.txt
+$ skjold -v audit poetry.lock
+$ skjold -v audit Pipenv.lock
 
 # Using poetry.
 $ poetry export -f requirements.txt | skjold audit -s github -s gemnasium -s pyup -
@@ -111,10 +110,10 @@ cache_expires: 86400
 
 #### Github
 
-For the `github` source to work you'll need to provide a Github API Token via an `ENV` variable named `SKJOLD_GITHUB_API_TOKEN`. You can [create a new Github Access Token here](https://github.com/settings/tokens). You *do not* not give it *any* permissions as it is used and required to query the [GitHub GraphQL API v4](https://developer.github.com/v4/) API.
+For the `github` source to work you'll need to provide a Github API Token via an `ENV` variable named `SKJOLD_GITHUB_API_TOKEN`. You can [create a new Github Access Token here](https://github.com/settings/tokens). You *do not* have to give it *any* permissions as it is only required to query the [GitHub GraphQL API v4](https://developer.github.com/v4/) API.
 
 ### Version Control Integration
-To use `skjold` with the excellent [pre-commit](https://pre-commit.com/) framework add the following lines to your projects `.pre-commit-config.yaml` after you've [installed it](https://pre-commit.com/#install).
+To use `skjold` with the excellent [pre-commit](https://pre-commit.com/) framework add the following to the projects `.pre-commit-config.yaml` after [installation](https://pre-commit.com/#install).
 
 ```yaml
 repos:
@@ -129,7 +128,7 @@ repos:
         files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
 ```
 
-Run `pre-commit install` and you should be good to go. To configure `skjold` in this scenario I'd recommend you to add all necessary configuration to your projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](https://github.com/psf/black/blob/master/pyproject.toml) as an example.
+After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](https://github.com/psf/black/blob/master/pyproject.toml) for an example.
 
 ## Changes
 - `0.1.0` _2020-01-27_
