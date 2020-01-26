@@ -1,14 +1,15 @@
-*NOTE:* This _thing_ is only a few days old. It works but the code is _shit_ and probably contains bugs!
+![](https://img.shields.io/pypi/v/skjold?color=black&label=PyPI&style=flat-square)
+![](https://img.shields.io/pypi/status/skjold?color=black&style=flat-square)
+![](https://img.shields.io/pypi/pyversions/skjold?color=black&logo=python&logoColor=white&style=flat-square)
+![](https://img.shields.io/pypi/l/skjold?color=black&label=License&style=flat-square)
+
 ```
         .         .    .      Skjold /skjɔl/
     ,-. | , . ,-. |  ,-|
-    `-. |<  | | | |  | |      Audit Python project dependencies against several
-    `-' ' ` | `-' `' `-´      security advisory databases providing lists of CVEs and
-           `'                 known malicious or unsafe packages.
+    `-. |<  | | | |  | |      Security audit python project dependencies
+    `-' ' ` | `-' `' `-´      against several security advisory databases.
+           `'
 ```
-
-# Skjold
-> Audit Python project dependencies against several security advisory databases providing lists of CVEs and known malicious or unsafe packages.
 
 ## Introduction
 It currently supports fetching advisories from the following sources:
@@ -19,16 +20,16 @@ It currently supports fetching advisories from the following sources:
 
 Unless configured explicitly `skjold` will run the given packages against all of them. There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates. Source can be added disabled by setting `sources` list (see _Configuration_).
 
-## Why?
-First and foremost, this is not an attempt at providing a fire and forget solution for auditing dependencies. I initially created this to replace `safety` which at least for the _free_ version seems to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282)). I also wanted something I can run locally, use on my private projects without having to open source them, letting anyone read my code or kill my wallet. I rely on [/r/mk](https://reddit.com/r/MechanicalKeyboards) for that.
+## Motivation
+Skjold was initially created for myself to replace `safety`. Which appears to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282)). I wanted something I can run locally and use for my local or private projects/scripts.
 
-I currently use it during CI builds and before deploying/publishing containers or packages.
+I currently also use it during CI builds and before deploying/publishing containers or packages.
 
 ## Installation
 `skjold` can be installed from either [PyPI](https://pypi.org/project/beautifulsoup4/) or directly from [Github](https://github.com/twu/skylt) using `pip`:
 
 ```sh
-pip install -e https://github.com/twu/skjold.git@v0.1.0  # Install from Github
+pip install -e https://github.com/twu/skjold.git@vX.X.X  # Install from Github
 pip install skjold                                       # Install from PyPI
 ```
 
@@ -36,7 +37,7 @@ This should provide a script named `skjold` that can then be invoked. See below.
 
 ## Usage
 ```sh
-$ pip freeze | skjold -v audit -
+$ pip freeze | skjold -v audit --source gemnasium -
 ```
 
 When running `audit` one can either provide a path to a _frozen_ `requirements.txt`, a `poetry.lock` or a `Pipfile.lock` file. Alternatively, dependencies can also be passed in via `stdin`  (formatted as `package==version`).
@@ -46,6 +47,8 @@ When running `audit` one can either provide a path to a _frozen_ `requirements.t
 For further options please read `skjold --help` and/or `skjold audit --help`.
 
 ### Examples
+
+All examples involving `github` assume that `SKJOLD_GITHUB_API_TOKEN` is already set (see _Github_).
 
 ```sh
 # Using pip freeze. Checking against GitHub only.
@@ -62,7 +65,7 @@ $ poetry export -f requirements.txt | skjold audit -s github -s gemnasium -s pyu
 # Using poetry, format output as json and pass it on to jq for additional filtering.
 $ poetry export -f requirements.txt | skjold audit -o json -s github - | jq '.[0]'
 
-# Using Pipenv, checking against Github.
+# Using Pipenv, checking against Github
 $ pipenv run pip freeze | skjold audit -s github -
 
 # Checking a single package via stdin against Github and format findings as json.
@@ -118,18 +121,15 @@ To use `skjold` with the excellent [pre-commit](https://pre-commit.com/) framewo
 ```yaml
 repos:
   - repo: https://github.com/twu/skjold
-    rev: v0.1.0
+    rev: vX.X.X
     hooks:
-    -   id: skjold
-        name: "skjold: Auditing dependencies for known vulnerabilities."
-        entry: skjold audit
-        language: python
-        language_version: python3
-        files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
+    - id: skjold
+      name: "skjold: Auditing dependencies for known vulnerabilities."
+      entry: skjold audit
+      language: python
+      language_version: python3
+      files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
 ```
 
 After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](https://github.com/psf/black/blob/master/pyproject.toml) for an example.
 
-## Changes
-- `0.1.0` _2020-01-27_
-	- Initial release on [PyPI](https://pypi.org).
