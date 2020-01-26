@@ -1,0 +1,93 @@
+[tool.poetry]
+name = 'skjold'
+version = '0.1.0'
+description = 'Compare PyPI packages against a set of vulnerability databases.'
+authors = ["Thomas Wurmitzer <t.wurmitzer+github@gmail.com>"]
+packages = [{ include="skjold/**/*.py", from = "src" }]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/twu/skjold"
+repository = "https://github.com/twu/skjold"
+keywords = [
+    "security",
+    "security-vulnerability",
+    "vulnerability-scanners",
+    "vulnerabilities",
+    "vulnerability-detection"
+]
+# https://pypi.org/classifiers/
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Utilities",
+    "Typing :: Typed",
+]
+
+[tool.poetry.scripts]
+skjold = 'skjold.cli:cli'
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.0"
+poetry-semver = "^0.1.0"
+tomlkit = "^0.5.8"
+requests = "^2.22.0"
+pyyaml = "^5.3"
+
+[tool.poetry.dev-dependencies]
+pytest-watch = '*'
+pytest-env = '*'
+pytest-sugar = "*"
+pytest-mock = "^2.0.0"
+pre-commit = '>=1.20.0'
+black = '>=19.10b0'
+mypy = "^0.761"
+coverage = {extras = ["toml"], version = "^5.0.3"}
+pytest-cov = "^2.8.1"
+pytest = "^5.3.3"
+
+[tool.skjold]
+report_only = true
+report_format = 'json'
+sources = ["pyup", "github", "gemnasium"]
+cache_dir = ".skjold_cache"
+cache_expires = 43200
+
+[tool.black]
+line-length = 88
+target-version = ['py36', 'py37', 'py38']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == \"__main__\":",
+]
+
+[build-system]
+requires = ["poetry>=1.0.0"]
+build-backend = "poetry.masonry.api"

@@ -1,0 +1,7 @@
+-   id: skylt
+    name: skylt
+    entry: skylt audit
+    language: python
+    language_version: python3
+    require_serial: true
+    files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
