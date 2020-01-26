@@ -18,7 +18,7 @@ It currently supports fetching advisories from the following sources:
 - [PyUP.io safety-db](https://github.com/pyupio/safety-db)
 - [GitLab gemnasium-db](https://gitlab.com/gitlab-org/security-products/gemnasium-db)
 
-Unless configured explicitly `skjold` will run the given packages against all of them. There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates. Source can be added disabled by setting `sources` list (see _Configuration_).
+Unless configured explicitly `skjold` will run the given packages against all of them. There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates. Source can be added disabled by setting `sources` list (see [Configuration](#configuration)).
 
 ## Motivation
 Skjold was initially created for myself to replace `safety`. Which appears to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282)). I wanted something I can run locally and use for my local or private projects/scripts.
@@ -33,7 +33,7 @@ pip install -e https://github.com/twu/skjold.git@vX.X.X  # Install from Github
 pip install skjold                                       # Install from PyPI
 ```
 
-This should provide a script named `skjold` that can then be invoked. See below.
+This should provide a script named `skjold` that can then be invoked. See [Usage](#usage).
 
 ## Usage
 ```sh
@@ -42,13 +42,13 @@ $ pip freeze | skjold -v audit --source gemnasium -
 
 When running `audit` one can either provide a path to a _frozen_ `requirements.txt`, a `poetry.lock` or a `Pipfile.lock` file. Alternatively, dependencies can also be passed in via `stdin`  (formatted as `package==version`).
 
-`skjold` will maintain a local cache (under `cache_dir`) that will expire automatically after `cache_expires` has passed. The `cache_dir` and `cache_expires` can be adjusted by setting them in  `tools.skjold` section of the projects `pyproject.toml` (see _Configuration_ for more details). The `cache_dir`will be created automatically, and by default unless otherwise specified will be located under `$HOME/.skjold/cache`.
+`skjold` will maintain a local cache (under `cache_dir`) that will expire automatically after `cache_expires` has passed. The `cache_dir` and `cache_expires` can be adjusted by setting them in  `tools.skjold` section of the projects `pyproject.toml` (see [Configuration](#configuration) for more details). The `cache_dir`will be created automatically, and by default unless otherwise specified will be located under `$HOME/.skjold/cache`.
 
 For further options please read `skjold --help` and/or `skjold audit --help`.
 
 ### Examples
 
-All examples involving `github` assume that `SKJOLD_GITHUB_API_TOKEN` is already set (see _Github_).
+All examples involving `github` assume that `SKJOLD_GITHUB_API_TOKEN` is already set (see [Github](#github)).
 
 ```sh
 # Using pip freeze. Checking against GitHub only.
@@ -131,9 +131,10 @@ repos:
       files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
 ```
 
-After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](https://github.com/psf/black/blob/master/pyproject.toml) for an example.
+After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](./pyproject.toml) for an example.
 
 ## Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
+
