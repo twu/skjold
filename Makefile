@@ -32,6 +32,14 @@ report-json:
 build: clean audit tests hooks
 	poetry build
 
+.PHONY: prerelease
+prerelease: build
+	poetry publish -r testpypi
+
+.PHONY: release
+release: build
+	poetry publish -r pypi
+
 .PHONY: clean
 clean:
 	find . -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
