@@ -1,13 +1,15 @@
 name: Python Package
 
 on:
- push:
-   paths:
-     - 'src/**'
-     - 'tests/**'
-     - 'poetry.lock'
-     - 'pyproject.toml'
-     - '.github/workflows/test.yml'
+  schedule:
+    - cron:  '0 6 * * *'
+  push:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'poetry.lock'
+      - 'pyproject.toml'
+      - '.github/workflows/test.yml'
 
 jobs:
   build:
