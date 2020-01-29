@@ -1,6 +1,6 @@
--   id: skylt
-    name: skylt
-    entry: skylt audit
+-   id: skjold
+    name: skjold
+    entry: skjold audit
     language: python
     language_version: python3
     require_serial: true
