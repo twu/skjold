@@ -29,8 +29,8 @@ I currently also use it during CI builds and before deploying/publishing contain
 `skjold` can be installed from either [PyPI](https://pypi.org/project/beautifulsoup4/) or directly from [Github](https://github.com/twu/skylt) using `pip`:
 
 ```sh
-pip install -e git+https://github.com/twu/skjold.git@vX.X.X  # Install from Github
-pip install skjold                                           # Install from PyPI
+pip install git+https://github.com/twu/skjold.git@vX.X.X  # Install from Github
+pip install skjold                                        # Install from PyPI
 ```
 
 This should provide a script named `skjold` that can then be invoked. See [Usage](#usage).
