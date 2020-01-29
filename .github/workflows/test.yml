@@ -17,7 +17,7 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v1
@@ -37,9 +37,19 @@ jobs:
         PYTHONPATH: src
       run: |
         poetry run pytest -x --cov=src tests
-    - name: Run example
+    - name: Run github example
       env:
         SKJOLD_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PYTHONPATH: src
       run: |
         echo "urllib3==1.23" | poetry run skjold -v audit -o json -r -s github -
+    - name: Run gemnasium example
+      env:
+        PYTHONPATH: src
+      run: |
+        echo "urllib3==1.23" | poetry run skjold -v audit -o json -r -s gemnasium -
+    - name: Run pyup example
+      env:
+        PYTHONPATH: src
+      run: |
+        echo "urllib3==1.22" | poetry run skjold -v audit -o json -r -s pyup -
