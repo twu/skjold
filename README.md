@@ -26,7 +26,7 @@ Skjold was initially created for myself to replace `safety`. Which appears to no
 I currently also use it during CI builds and before deploying/publishing containers or packages.
 
 ## Installation
-`skjold` can be installed from either [PyPI](https://pypi.org/project/beautifulsoup4/) or directly from [Github](https://github.com/twu/skylt) using `pip`:
+`skjold` can be installed from either [PyPI](https://pypi.org/project/skjold/) or directly from [Github](https://github.com/twu/skjold) using `pip`:
 
 ```sh
 pip install git+https://github.com/twu/skjold.git@vX.X.X  # Install from Github
