@@ -87,5 +87,5 @@ def test_ensure_gemnasium_update(cache_dir):
     found, findings = source.is_vulnerable_package("django", "2.2.8")
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("Django", "2.2.9")
+    found, findings = source.is_vulnerable_package("Django", "2.3.0")
     assert found is False and len(findings) == 0
