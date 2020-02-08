@@ -1,7 +1,9 @@
 ![](https://img.shields.io/pypi/v/skjold?color=black&label=PyPI&style=flat-square)
+![](https://img.shields.io/github/workflow/status/twu/skjold/Python%20Package/master?color=black&label=Tests&style=flat-square)
 ![](https://img.shields.io/pypi/status/skjold?color=black&style=flat-square)
 ![](https://img.shields.io/pypi/pyversions/skjold?color=black&logo=python&logoColor=white&style=flat-square)
 ![](https://img.shields.io/pypi/l/skjold?color=black&label=License&style=flat-square)
+![](https://img.shields.io/pypi/dm/skjold?color=black&label=Downloads&style=flat-square)
 
 ```
         .         .    .      Skjold /skjɔl/
