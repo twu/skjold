@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 import os
 import pytest
+from typing import Any
+
 from skjold.sources.gemnasium import GemnasiumSecurityAdvisory, Gemnasium
+
 import yaml
 
 
-def gemnasium_advisory_yml(name):
+def gemnasium_advisory_yml(name: str) -> Any:
     _path = os.path.join(os.path.dirname(__file__), "fixtures", "gemnasium", name)
     assert _path.endswith(".yml") or _path.endswith(".yaml")
     assert os.path.exists(_path)
@@ -16,7 +19,7 @@ def gemnasium_advisory_yml(name):
     return doc
 
 
-def test_ensure_gemnasium_advisory_from_yaml():
+def test_ensure_gemnasium_advisory_from_yaml() -> None:
     """Ensure that we are able to create GemnasiumSecurityAdvisories from a given YAML document."""
     obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("multiple.yml"))
     assert obj.package_name == "Django"
@@ -61,14 +64,16 @@ def test_ensure_gemnasium_advisory_from_yaml():
         )
     ],
 )
-def test_ensure_is_affected(doc, package_name, package_version, is_vulnerable):
+def test_ensure_is_affected(
+    doc: Any, package_name: str, package_version: str, is_vulnerable: bool
+) -> None:
     obj = GemnasiumSecurityAdvisory.using(doc)
     assert obj.package_name == "package"
     assert len(obj.vulnerable_version_range) == len(doc["affected_range"].split("||"))
     assert obj.is_affected(package_version) is is_vulnerable
 
 
-def test_ensure_gemnasium_update(cache_dir):
+def test_ensure_gemnasium_update(cache_dir: str) -> None:
     source = Gemnasium(cache_dir, 3600)
     assert len(source._advisories) == 0
 

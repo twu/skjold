@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
-from typing import List
+from typing import List, Any, Tuple
 from skjold.tasks import register_source, is_registered_source, Configuration
 from skjold.models import SecurityAdvisorySource, SecurityAdvisory, SkjoldException
 
@@ -52,7 +52,7 @@ class DummyAdvisorySource(SecurityAdvisorySource):
     def populate_from_cache(self) -> None:
         pass
 
-    def update(self):
+    def update(self) -> None:
         self._advisories = {"single": [DummyAdvisory()]}
 
     def has_security_advisory_for(self, package_name: str) -> bool:
@@ -62,15 +62,17 @@ class DummyAdvisorySource(SecurityAdvisorySource):
 
     def is_vulnerable_package(
         self, package_name: str, package_version: str
-    ) -> List[SecurityAdvisory]:
-        return []
+    ) -> Tuple[bool, List[SecurityAdvisory]]:
+        return False, []
 
     @property
     def total_count(self) -> int:
         return len(self.advisories)
 
 
-def test_ensure_accessing_advisories_triggers_update(mocker, cache_dir):
+def test_ensure_accessing_advisories_triggers_update(
+    mocker: Any, cache_dir: str
+) -> None:
     source = DummyAdvisorySource(cache_dir)
     assert len(source._advisories) == 0
 
@@ -80,7 +82,7 @@ def test_ensure_accessing_advisories_triggers_update(mocker, cache_dir):
     assert spy.assert_called
 
 
-def test_register_source():
+def test_register_source() -> None:
     DummyAdvisorySource._name = "dummy2"
     register_source("dummy2", DummyAdvisorySource)
 
@@ -89,7 +91,7 @@ def test_register_source():
     assert "dummy2" in _config.available_sources
 
 
-def test_register_source_twice():
+def test_register_source_twice() -> None:
     with pytest.raises(SkjoldException):
         register_source("dummy", DummyAdvisorySource)
         assert is_registered_source("dummy")

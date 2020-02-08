@@ -25,7 +25,7 @@ repos:
         name: mypy
         stages: [commit]
         language: system
-        entry: poetry run mypy src
+        entry: poetry run mypy src tests
         types: [python]
         pass_filenames: false
     -   id: skjold

@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import pytest
+from typing import Dict, Union, Any
 
 from skjold.sources.github import GithubSecurityAdvisory, Github
 
 
 @pytest.fixture
-def github_advisory():
+def github_advisory() -> Dict[str, Union[str, Dict]]:
     return {
         "cursor": "...",
         "node": {
@@ -23,7 +24,7 @@ def github_advisory():
     }
 
 
-def test_ensure_using_build_obj(github_advisory):
+def test_ensure_using_build_obj(github_advisory: Dict) -> None:
     obj = GithubSecurityAdvisory.using(github_advisory)
 
     assert obj.package_name == "Plone"
@@ -35,7 +36,7 @@ def test_ensure_using_build_obj(github_advisory):
     assert obj.vulnerable_versions == ">=4.0,<4.3.12"
 
 
-def test_ensure_is_affected_example(github_advisory):
+def test_ensure_is_affected_example(github_advisory: Dict) -> None:
     obj = GithubSecurityAdvisory.using(github_advisory)
     assert obj.package_name == "Plone"
 
@@ -45,7 +46,9 @@ def test_ensure_is_affected_example(github_advisory):
     assert obj.is_affected("3.0") is False
 
 
-def test_ensure_accessing_advisories_triggers_update(cache_dir, mocker):
+def test_ensure_accessing_advisories_triggers_update(
+    cache_dir: str, mocker: Any
+) -> None:
     source = Github(cache_dir, 3600)
     assert len(source._advisories) == 0
 

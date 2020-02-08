@@ -3,7 +3,7 @@ import pytest
 
 
 @pytest.fixture
-def requirements_txt_with_hashes():
+def requirements_txt_with_hashes() -> str:
     return """appdirs==1.4.3 \\
         --hash=sha256:d8b24664561d0d34ddfaec54636d502d7cea6e29c3eaf68f3df6180863e2166e \\
         --hash=sha256:9e5896d1372858f8dd3344faf4e5014d21849c756c8d5701f78f8a103b372d92
@@ -22,5 +22,5 @@ def requirements_txt_with_hashes():
 
 
 @pytest.fixture()
-def cache_dir():
+def cache_dir() -> str:
     return ".skjold_cache"

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
+from typing import List, Dict, Any
 
 from skjold.sources.pyup import PyUpSecurityAdvisory
 
@@ -19,7 +20,7 @@ from skjold.sources.pyup import PyUpSecurityAdvisory
         )
     ],
 )
-def test_ensure_using_build_obj(name, raw):
+def test_ensure_using_build_obj(name: str, raw: Dict[Any, Any]) -> None:
     obj = PyUpSecurityAdvisory.using(name, raw)
     assert obj.package_name == "package_name"
     assert obj.identifier == "pyup.io-XXXXXX"
@@ -50,7 +51,12 @@ def test_ensure_using_build_obj(name, raw):
         ({"specs": ["<1.1.1"], "v": "<1.1.1"}),
     ],
 )
-def test_ensure_is_affected(specs, package_name, package_version, is_vulnerable):
+def test_ensure_is_affected(
+    specs: Dict[str, List[str]],
+    package_name: str,
+    package_version: str,
+    is_vulnerable: bool,
+) -> None:
     obj = PyUpSecurityAdvisory.using("package", specs)
     assert obj.package_name == "package"
     assert len(obj.vulnerable_version_range) == len(specs["specs"])
@@ -65,7 +71,9 @@ def test_ensure_is_affected(specs, package_name, package_version, is_vulnerable)
         ("package", "2.0.0", False),
     ],
 )
-def test_ensure_is_affected_single(package_name, package_version, is_vulnerable):
+def test_ensure_is_affected_single(
+    package_name: str, package_version: str, is_vulnerable: bool
+) -> None:
     obj = PyUpSecurityAdvisory.using("package", {"specs": ["==1.0.0"]})
     assert obj.package_name == "package"
     assert len(obj.vulnerable_version_range) == 1
@@ -86,8 +94,12 @@ def test_ensure_is_affected_single(package_name, package_version, is_vulnerable)
     ],
 )
 def test_ensure_source_is_affected_single(
-    source_name, package_name, package_version, is_vulnerable, cache_dir
-):
+    source_name: str,
+    package_name: str,
+    package_version: str,
+    is_vulnerable: bool,
+    cache_dir: str,
+) -> None:
 
     import skjold.sources
     from skjold.tasks import _sources

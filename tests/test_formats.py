@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 import os
+from typing import Optional
 
 import pytest
 
@@ -21,7 +22,9 @@ def format_fixture_path_for(folder: str, filename: str) -> str:
 @pytest.mark.parametrize(
     "filename", ["poetry.lock", "requirements.txt", "Pipfile.lock"]
 )
-def test_extract_dependencies_using_minimal_examples(folder, filename) -> None:
+def test_extract_dependencies_using_minimal_examples(
+    folder: str, filename: str
+) -> None:
     with open(format_fixture_path_for(folder, filename)) as fh:
         packages = list(extract_package_list_from(Configuration(), fh, None))
         assert len(packages) > 0
@@ -39,7 +42,9 @@ def test_extract_dependencies_using_minimal_examples(folder, filename) -> None:
         ("Pipfile.lock", "Pipfile.lock"),
     ],
 )
-def test_extract_package_versions_from_with_poetry_lock(folder, filename, format_):
+def test_extract_package_versions_from_with_poetry_lock(
+    folder: str, filename: str, format_: Optional[str]
+) -> None:
 
     with open(format_fixture_path_for(folder, filename)) as fh:
         packages = list(extract_package_list_from(Configuration(), fh, format_))
@@ -58,12 +63,16 @@ def test_extract_package_versions_from_with_poetry_lock(folder, filename, format
         ('foo==1.3.0; sys_platform == "win32"', [("foo", "1.3.0")]),
     ],
 )
-def test_extract_package_versions_from(stdin: str, expected_package_list: PackageList):
+def test_extract_package_versions_from(
+    stdin: str, expected_package_list: PackageList
+) -> None:
     packages = read_requirements_txt_from(io.StringIO(stdin))
     assert list(packages) == expected_package_list
 
 
-def test_extract_package_versions_from_file_with_hashes(requirements_txt_with_hashes,):
+def test_extract_package_versions_from_file_with_hashes(
+    requirements_txt_with_hashes: str,
+) -> None:
     packages = read_requirements_txt_from(io.StringIO(requirements_txt_with_hashes))
     assert list(packages) == [
         ("appdirs", "1.4.3"),
