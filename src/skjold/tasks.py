@@ -79,7 +79,7 @@ def report(configuration: Configuration, results: List[Dict[str, Any]]) -> None:
             "MODERATE": "yellow",
             "HIGH": "red",
             "UNKNOWN": "yellow",
-        }[result["severity"]]
+        }.get(result["severity"])
 
         click.secho("")
         click.secho(result["name"], fg="white", nl=False)
