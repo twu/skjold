@@ -80,7 +80,7 @@ def report(configuration: Configuration, results: List[Dict[str, Any]]) -> None:
             "MODERATE": "yellow",
             "HIGH": "red",
             "CRITICAL": "red",
-            "UNKNOWN": "yellow",
+            "UNKNOWN": "red",
         }.get(result["severity"])
 
         click.secho("")
