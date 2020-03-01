@@ -75,9 +75,11 @@ def report(configuration: Configuration, results: List[Dict[str, Any]]) -> None:
 
     for result in results:
         _color = {
-            "MEDIUM": "white",
+            "NONE": "white",
+            "LOW": "yellow",
             "MODERATE": "yellow",
             "HIGH": "red",
+            "CRITICAL": "red",
             "UNKNOWN": "yellow",
         }.get(result["severity"])
 
