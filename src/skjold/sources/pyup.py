@@ -31,7 +31,7 @@ class PyUpSecurityAdvisory(SecurityAdvisory):
 
     @property
     def severity(self) -> str:
-        return "HIGH"
+        return "UNKNOWN"
 
     @property
     def url(self) -> str:

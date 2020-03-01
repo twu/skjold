@@ -26,7 +26,7 @@ def test_ensure_using_build_obj(name: str, raw: Dict[Any, Any]) -> None:
     assert obj.identifier == "pyup.io-XXXXXX"
     assert obj.source == "pyup"
     assert obj.summary == "Advisory summary."
-    assert obj.severity == "HIGH"
+    assert obj.severity == "UNKNOWN"
     assert obj.url == "https://pyup.io/pyup.io-XXXXXX"
     assert obj.references == []
     assert obj.vulnerable_versions == "<1.0.0,>=1.1,<1.1.1"
