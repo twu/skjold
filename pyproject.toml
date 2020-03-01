@@ -33,6 +33,10 @@ classifiers = [
     "Typing :: Typed",
 ]
 
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/twu/skjold/issues"
+"Changelog" = "https://github.com/twu/skjold/releases"
+
 [tool.poetry.scripts]
 skjold = 'skjold.cli:cli'
 
