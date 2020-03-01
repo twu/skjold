@@ -42,6 +42,9 @@ def read_requirements_txt_from(file: TextIO) -> Iterator[Package]:
         # Skip lines only containing editable packages.
         if line.strip().startswith("-e"):
             continue
+        # Skip comment lines.
+        if line.strip().startswith("#"):
+            continue
 
         line = line.split(";")[0]
         package_name, package_version = line.strip().split(" ")[0].split("==")

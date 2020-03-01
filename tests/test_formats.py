@@ -61,6 +61,12 @@ def test_extract_package_versions_from_with_poetry_lock(
         ),
         ('foo==1.4.0; python_version < "3.8"', [("foo", "1.4.0")]),
         ('foo==1.3.0; sys_platform == "win32"', [("foo", "1.3.0")]),
+        # Ensure that we are able to handle comments.
+        ("# comment==0.1.2", []),
+        (
+            'bar==1.2.0\n # comment==0.1.2\nfoo==1.3.0; sys_platform == "win32"',
+            [("bar", "1.2.0"), ("foo", "1.3.0")],
+        ),
     ],
 )
 def test_extract_package_versions_from(
