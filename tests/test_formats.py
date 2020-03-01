@@ -61,6 +61,15 @@ def test_extract_package_versions_from_with_poetry_lock(
         ),
         ('foo==1.4.0; python_version < "3.8"', [("foo", "1.4.0")]),
         ('foo==1.3.0; sys_platform == "win32"', [("foo", "1.3.0")]),
+        # Ensure that we are able to handle dependencies with (multi-line) hashes.
+        (
+            "foo==1.3.0 --hash=sha256:05668158c7b85b791c5abde53e50265e16f98ad601c402ba44d70f96c4159612",
+            [("foo", "1.3.0")],
+        ),
+        (
+            "foo==1.3.0 --hash=sha256:deaddood...\\ \n --hash=sha256:deadbeef...\nbar==1.2.0",
+            [("foo", "1.3.0"), ("bar", "1.2.0")],
+        ),
         # Ensure that we are able to handle comments.
         ("# comment==0.1.2", []),
         (
