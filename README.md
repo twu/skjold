@@ -126,11 +126,6 @@ repos:
     rev: vX.X.X
     hooks:
     - id: skjold
-      name: "skjold: Auditing dependencies for known vulnerabilities."
-      entry: skjold audit
-      language: python
-      language_version: python3
-      files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
 ```
 
 After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](./pyproject.toml) for an example.
