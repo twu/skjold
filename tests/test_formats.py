@@ -76,6 +76,11 @@ def test_extract_package_versions_from_with_poetry_lock(
             'bar==1.2.0\n # comment==0.1.2\nfoo==1.3.0; sys_platform == "win32"',
             [("bar", "1.2.0"), ("foo", "1.3.0")],
         ),
+        # Ensure we skip invalid lines.
+        (
+            "bar==1.2.0\n--trusted-host internal-host\nfoo==1.3.0\n--extra-index-url http://internal-host/pypi/index/",
+            [("bar", "1.2.0"), ("foo", "1.3.0")],
+        ),
     ],
 )
 def test_extract_package_versions_from(
