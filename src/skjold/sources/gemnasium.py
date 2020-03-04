@@ -10,6 +10,7 @@ import yaml
 
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource, SkjoldException
 from skjold.tasks import register_source
+from skjold.cvss import parse_cvss
 
 
 class GemnasiumSecurityAdvisory(SecurityAdvisory):
@@ -31,6 +32,13 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
 
     @property
     def severity(self) -> str:
+
+        for field in ["cvss_v3", "cvss_v2"]:
+            vector = self._json.get(field, None)
+            if vector:
+                cvss = parse_cvss(vector)
+                return cvss.severity
+
         return "UNKNOWN"
 
     @property

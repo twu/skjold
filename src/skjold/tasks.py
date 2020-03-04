@@ -74,10 +74,12 @@ def report(configuration: Configuration, results: List[Dict[str, Any]]) -> None:
         return
 
     for result in results:
+        # https://nvd.nist.gov/vuln-metrics/cvss
         _color = {
             "NONE": "white",
             "LOW": "yellow",
-            "MODERATE": "yellow",
+            "MODERATE": "yellow",  # Github
+            "MEDIUM": "yellow",  # CVSS
             "HIGH": "red",
             "CRITICAL": "red",
             "UNKNOWN": "red",

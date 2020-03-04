@@ -19,13 +19,13 @@ def gemnasium_advisory_yml(name: str) -> Any:
     return doc
 
 
-def test_ensure_gemnasium_advisory_from_yaml() -> None:
+def test_ensure_gemnasium_advisory_from_yaml_with_cvss3_and_cvss2() -> None:
     """Ensure that we are able to create GemnasiumSecurityAdvisories from a given YAML document."""
-    obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("multiple.yml"))
+    obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("CVE-2019-19844.yml"))
     assert obj.package_name == "Django"
     assert obj.identifier == "CVE-2019-19844"
     assert obj.source == "gemnasium"
-    assert obj.severity == "UNKNOWN"
+    assert obj.severity == "CRITICAL"
     assert obj.url == "https://nvd.nist.gov/vuln/detail/CVE-2019-19844"
     assert obj.references == [
         "https://nvd.nist.gov/vuln/detail/CVE-2019-19844",
@@ -37,6 +37,48 @@ def test_ensure_gemnasium_advisory_from_yaml() -> None:
         "Weak Password Recovery Mechanism for Forgotten Password"
     )
     # assert obj.published_at == "2019-12-18"
+
+
+def test_ensure_gemnasium_advisory_from_yaml_with_cvss2_only() -> None:
+    obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("CVE-2014-1932.yml"))
+    assert "cvss_v2" in obj._json
+    obj._json.pop("cvss_v3", None)
+
+    assert obj.package_name == "Pillow"
+    assert obj.identifier == "CVE-2014-1932"
+    assert obj.source == "gemnasium"
+    assert obj.severity == "MEDIUM"
+    assert obj.url == "http://seclists.org/oss-sec/2014/q1/310"
+    assert obj.references == [
+        "http://seclists.org/oss-sec/2014/q1/310",
+        "https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=737059",
+    ]
+    assert obj.vulnerable_versions == "<2.3.1"
+    assert obj.summary.startswith(
+        "Insecure use of tempfile.mktemp. In JpegImagePlugin.py,"
+    )
+
+
+def test_ensure_gemnasium_advisory_from_yaml_with_no_cvss_vector() -> None:
+    obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("CVE-2014-1932.yml"))
+
+    # Drop any vectors that might be present.
+    obj._json.pop("cvss_v3", None)
+    obj._json.pop("cvss_v2", None)
+
+    assert obj.package_name == "Pillow"
+    assert obj.identifier == "CVE-2014-1932"
+    assert obj.source == "gemnasium"
+    assert obj.severity == "UNKNOWN"
+    assert obj.url == "http://seclists.org/oss-sec/2014/q1/310"
+    assert obj.references == [
+        "http://seclists.org/oss-sec/2014/q1/310",
+        "https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=737059",
+    ]
+    assert obj.vulnerable_versions == "<2.3.1"
+    assert obj.summary.startswith(
+        "Insecure use of tempfile.mktemp. In JpegImagePlugin.py,"
+    )
 
 
 @pytest.mark.parametrize(
