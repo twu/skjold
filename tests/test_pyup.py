@@ -87,9 +87,11 @@ def test_ensure_is_affected_single(
     [
         ("pyup", "werkzeug", "0.11.10", True),
         ("pyup", "werkzeug", "0.9", True),
-        ("pyup", "werkzeug", "0.11.11", False),
-        ("pyup", "werkzeug", "0.12", False),
-        ("pyup", "werkzeug", "0.12", False),
+        ("pyup", "werkzeug", "0.11.11", True),
+        ("pyup", "werkzeug", "0.12", True),
+        ("pyup", "werkzeug", "0.12", True),
+        ("pyup", "werkzeug", "1.0.0", False),
+        ("pyup", "werkzeug", "1.0.1", False),
         ("pyup", "does-not-exist", "0", False),
     ],
 )
