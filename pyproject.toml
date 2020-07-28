@@ -58,7 +58,7 @@ black = '>=19.10b0'
 mypy = "^0.761"
 coverage = {extras = ["toml"], version = "^5.0.3"}
 pytest-cov = "^2.8.1"
-pytest = "^5.3.3"
+pytest = "^6.0.0"
 
 [tool.skjold]
 report_only = true
@@ -66,6 +66,19 @@ report_format = 'json'
 sources = ["pyup", "github", "gemnasium"]
 cache_dir = ".skjold_cache"
 cache_expires = 43200
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-s"
+log_cli_level = "INFO"
+testpaths = [
+    "tests",
+]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::PendingDeprecationWarning",
+  "ignore::UserWarning",
+]
 
 [tool.black]
 line-length = 88
