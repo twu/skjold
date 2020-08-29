@@ -39,7 +39,7 @@ This should provide a script named `skjold` that can then be invoked. See [Usage
 
 ## Usage
 ```sh
-$ pip freeze | skjold -v audit --source gemnasium -
+$ pip freeze | skjold -v audit --sources gemnasium -
 ```
 
 When running `audit` one can either provide a path to a _frozen_ `requirements.txt`, a `poetry.lock` or a `Pipfile.lock` file. Alternatively, dependencies can also be passed in via `stdin`  (formatted as `package==version`).
