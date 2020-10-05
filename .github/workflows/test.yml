@@ -38,7 +38,7 @@ jobs:
       run: |
         poetry run pytest -x --cov=src tests
     - name: Test report
-      if: matrix.python == 3.8 && success()
+      if: ${{ matrix.python == 3.8 && success() }}
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
       run: |
