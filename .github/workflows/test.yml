@@ -37,6 +37,14 @@ jobs:
         PYTHONPATH: src
       run: |
         poetry run pytest -x --cov=src tests
+    - name: Test report
+      if: matrix.python == 3.8 && success()
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      run: |
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+        ./cc-test-reporter after-build
     - name: Run github example
       env:
         SKJOLD_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
