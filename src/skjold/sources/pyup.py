@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import json
 import os
+import datetime
 from collections import defaultdict
-from typing import Tuple, List, Dict, Callable
+from typing import Tuple, List, Dict, Callable, Union, Any
 
 import requests
 import semver
@@ -69,8 +70,9 @@ class PyUpSecurityAdvisory(SecurityAdvisory):
 
 class PyUp(SecurityAdvisorySource):
 
-    _url = "https://raw.githubusercontent.com/pyupio/safety-db/master/data/insecure_full.json"
-    _name = "pyup"
+    _url: str = "https://raw.githubusercontent.com/pyupio/safety-db/master/data/insecure_full.json"
+    _name: str = "pyup"
+    _metadata: Dict[str, Union[str, int]] = {}
 
     @property
     def name(self) -> str:
@@ -84,15 +86,29 @@ class PyUp(SecurityAdvisorySource):
     def path(self) -> str:
         return os.path.join(self._cache_dir, "pyup.cache")
 
+    @property
+    def last_updated_at(self) -> datetime.datetime:
+        timestamp = int(self._metadata["timestamp"])
+        return datetime.datetime.utcfromtimestamp(timestamp)
+
+    def _load_cache(self) -> Any:
+        with open(self.path, "rb") as fh:
+            json_ = json.load(fh)
+            return json_
+
     def populate_from_cache(self) -> None:
         assert os.path.exists(self.path)
         self._advisories = defaultdict(list)
-        with open(self.path, "rb") as fh:
-            json_ = json.load(fh)
-            for package_name, advisories in json_.items():
-                for advisory in advisories:
-                    obj = PyUpSecurityAdvisory.using(package_name, advisory)
-                    self._advisories[obj.package_name].append(obj)
+
+        cache_ = self._load_cache()
+        for package_name, advisories in cache_.items():
+            if package_name in {"$meta"}:
+                self._metadata = advisories
+                continue
+
+            for advisory in advisories:
+                obj = PyUpSecurityAdvisory.using(package_name, advisory)
+                self._advisories[obj.package_name].append(obj)
 
     def update(self) -> None:
         response = requests.get(self._url)
