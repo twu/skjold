@@ -33,8 +33,8 @@ I currently also use it during CI builds and before deploying/publishing contain
 `skjold` can be installed from either [PyPI](https://pypi.org/project/skjold/) or directly from [Github](https://github.com/twu/skjold) using `pip`:
 
 ```sh
-pip install git+https://github.com/twu/skjold.git@vX.X.X  # Install from Github
 pip install skjold                                        # Install from PyPI
+pip install git+https://github.com/twu/skjold.git@vX.X.X  # Install from Github
 ```
 
 This should provide a script named `skjold` that can then be invoked. See [Usage](#usage).
