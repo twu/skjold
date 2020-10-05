@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
-import pytest
+import datetime
+import json
 from typing import List, Dict, Any
+from unittest import mock
 
-from skjold.sources.pyup import PyUpSecurityAdvisory
+import pytest
+
+from skjold.sources.pyup import PyUpSecurityAdvisory, PyUp
 
 
 @pytest.mark.parametrize(
@@ -117,3 +121,33 @@ def test_ensure_source_is_affected_single(
 
     vulnerable, _ = source.is_vulnerable_package(package_name, package_version)
     assert vulnerable == is_vulnerable
+
+
+def pyup_advisories_with_metadata() -> Any:
+    payload = """\
+    {
+      "$meta": {
+        "advisory": "PyUp.io metadata",
+        "timestamp": 1601532001
+      },
+      "package": [{
+        "advisory": "...",
+        "cve": null,
+        "id": "pyup.io-XXXXX",
+        "specs": [">0", "<0"],
+        "v": ">0,<0"
+      }]
+    }"""
+    return json.loads(payload)
+
+
+def test_pyup_handle_metadata(cache_dir: str) -> None:
+    pyup = PyUp(cache_dir=cache_dir, cache_expires=0)
+    assert pyup.total_count == 0
+    with pytest.raises(KeyError):
+        assert pyup.last_updated_at
+
+    with mock.patch.object(pyup, "_load_cache", pyup_advisories_with_metadata):
+        pyup.populate_from_cache()
+        assert pyup.total_count == 1
+        assert pyup.last_updated_at == datetime.datetime(2020, 10, 1, 6, 0, 1)
