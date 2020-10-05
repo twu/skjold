@@ -37,6 +37,17 @@ jobs:
         PYTHONPATH: src
       run: |
         poetry run pytest -x --cov=src tests
+    - name: Upload coverage report
+      if: matrix.python-version == 3.8 && success()
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      run: |
+        echo "::set-env name=GIT_BRANCH::${GITHUB_REF#refs/heads/}"
+        echo "::set-env name=GIT_COMMIT_SHA::$GITHUB_SHA"
+        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        chmod +x ./cc-test-reporter
+        poetry run coverage xml
+        ./cc-test-reporter after-build
     - name: Run github example
       env:
         SKJOLD_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
