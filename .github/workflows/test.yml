@@ -44,6 +44,7 @@ jobs:
       run: |
         curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
         chmod +x ./cc-test-reporter
+        poetry run coverage xml
         ./cc-test-reporter after-build
     - name: Run github example
       env:
