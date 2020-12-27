@@ -59,7 +59,7 @@ black = '>=19.10b0'
 mypy = "^0.761"
 coverage = {extras = ["toml"], version = "^5.3.1"}
 pytest-cov = "^2.8.1"
-pytest = "^6.0.0"
+pytest = "^6.2.1"
 
 [tool.skjold]
 report_only = true
