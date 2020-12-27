@@ -45,7 +45,7 @@ skjold = 'skjold.cli:cli'
 python = "^3.6"
 click = "^7.0"
 poetry-semver = "^0.1.0"
-tomlkit = "^0.5.8"
+tomlkit = ">=0.5.8,<0.8.0"
 requests = "^2.22.0"
 pyyaml = "^5.3"
 
