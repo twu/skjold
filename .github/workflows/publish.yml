@@ -9,7 +9,7 @@ jobs:
     if: "github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2.3.4
     - name: Set up Python
       uses: actions/setup-python@v2.2.1
       with:
@@ -28,7 +28,7 @@ jobs:
     if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2.3.4
     - name: Set up Python
       uses: actions/setup-python@v2.2.1
       with:
