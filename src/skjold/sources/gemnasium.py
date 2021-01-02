@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import os
 import tarfile
+import urllib.request
 from collections import defaultdict
 from typing import List, Tuple, Callable
 
-import requests
 import semver
 import yaml
 
+from skjold.cvss import parse_cvss
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource, SkjoldException
 from skjold.tasks import register_source
-from skjold.cvss import parse_cvss
 
 
 class GemnasiumSecurityAdvisory(SecurityAdvisory):
@@ -69,9 +69,9 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
 
     def is_affected(self, version: str) -> bool:
         version_ = semver.Version.parse(version)
-        allows_: Callable[
-            [semver.VersionConstraint], bool
-        ] = lambda x: True if x.allows(version_) else False
+        allows_: Callable[[semver.VersionConstraint], bool] = (
+            lambda x: True if x.allows(version_) else False
+        )
         # affected_versions = map(lambda x: x.allows(version), self.vulnerable_version_range)
         affected_versions = map(allows_, self.vulnerable_version_range)
         return any(affected_versions)
@@ -114,10 +114,12 @@ class Gemnasium(SecurityAdvisorySource):
         return len(self._advisories.keys())
 
     def update(self) -> None:
-        response = requests.get(self._url)
-        response.raise_for_status()
-        with open(self.path, "wb") as fh:
-            fh.write(response.content)
+        request = urllib.request.Request(
+            url=self._url, headers={"User-Agent": "Mozilla/5.0"}
+        )
+        with urllib.request.urlopen(request) as response:
+            with open(self.path, "wb") as fh:
+                fh.write(response.read())
 
     def has_security_advisory_for(self, package_name: str) -> bool:
         return package_name.strip().lower() in self.advisories.keys()

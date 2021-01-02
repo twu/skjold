@@ -90,14 +90,13 @@ def test_extract_package_versions_from(
     assert list(packages) == expected_package_list
 
 
-def test_extract_package_versions_from_file_with_hashes(
-    requirements_txt_with_hashes: str,
-) -> None:
-    packages = read_requirements_txt_from(io.StringIO(requirements_txt_with_hashes))
-    assert list(packages) == [
-        ("appdirs", "1.4.3"),
-        ("argh", "0.26.2"),
-        ("aspy.yaml", "1.3.0"),
-        ("atomicwrites", "1.3.0"),
-        ("attrs", "19.3.0"),
-    ]
+def test_extract_package_versions_from_file_with_hashes() -> None:
+    with open(format_fixture_path_for("pip", "requirements_with_hashes.txt")) as fh:
+        packages = read_requirements_txt_from(fh)
+        assert list(packages) == [
+            ("appdirs", "1.4.3"),
+            ("argh", "0.26.2"),
+            ("aspy.yaml", "1.3.0"),
+            ("atomicwrites", "1.3.0"),
+            ("attrs", "19.3.0"),
+        ]

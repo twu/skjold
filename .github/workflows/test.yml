@@ -38,7 +38,7 @@ jobs:
       run: |
         poetry run pytest -x --cov=src tests
     - name: Upload coverage report
-      if: matrix.python-version == 3.8 && success() && github.ref == 'refs/heads/master' 
+      if: matrix.python-version == 3.8 && success() && github.ref == 'refs/heads/master'
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         GIT_COMMIT_SHA: ${{ github.sha }}

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-import pytest
+import os
 from typing import List, Any, Tuple
-from skjold.tasks import register_source, is_registered_source, Configuration
+
+import pytest
+
 from skjold.models import SecurityAdvisorySource, SecurityAdvisory, SkjoldException
+from skjold.tasks import register_source, is_registered_source, Configuration
 
 
 class DummyAdvisory(SecurityAdvisory):
@@ -48,6 +51,10 @@ class DummyAdvisorySource(SecurityAdvisorySource):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def path(self) -> str:
+        return os.path.join(self._cache_dir, "dummy.cache")
 
     def populate_from_cache(self) -> None:
         pass
