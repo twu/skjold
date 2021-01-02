@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import abc
 import os
 import time
-import abc
 from abc import ABCMeta, abstractmethod
 from typing import List, Tuple, MutableMapping, Sequence, Optional
 
@@ -118,9 +118,10 @@ class SecurityAdvisorySource(metaclass=ABCMeta):
         return is_outdated(self.path, self._cache_expires)
 
     @property
+    @abstractmethod
     def path(self) -> Optional[str]:
         """Return path to local database download."""
-        return None
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -146,5 +147,7 @@ class SecurityAdvisorySource(metaclass=ABCMeta):
     def has_security_advisory_for(self, package_name: str) -> bool:
         raise NotImplementedError
 
-    def get_security_advisories(self,) -> MutableMapping[str, SecurityAdvisoryList]:
+    def get_security_advisories(
+        self,
+    ) -> MutableMapping[str, SecurityAdvisoryList]:
         return self.advisories

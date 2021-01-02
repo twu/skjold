@@ -7,7 +7,6 @@ import sys
 from typing import List, TextIO
 
 import click
-import tomlkit
 import skjold.sources
 
 from skjold.formats import extract_package_list_from, Format
@@ -16,8 +15,9 @@ from skjold.tasks import (
     audit,
     print_configuration,
     report,
-    is_registered_source,
     get_registered_sources,
+    default_from_context,
+    get_configuration_from_toml,
 )
 
 configuration = click.make_pass_decorator(Configuration, ensure=True)
@@ -28,70 +28,58 @@ configuration = click.make_pass_decorator(Configuration, ensure=True)
     "configuration_file",
     "-c",
     "--configuration-file",
+    envvar="SKJOLD_RC",
     type=click.Path(exists=False, dir_okay=False, resolve_path=True),
     default="./pyproject.toml",
     show_default=True,
     required=False,
 )
 @click.option(
-    "verbose", "-v", "--verbose", is_flag=True, default=False, show_default=True
+    "verbose",
+    "-v",
+    "--verbose",
+    envvar="SKJOLD_VERBOSE",
+    is_flag=True,
+    default=False,
+    show_default=True,
 )
 @click.version_option(version=__version__, prog_name="skjold")
 @configuration
-def cli(config: Configuration, configuration_file: click.Path, verbose: bool) -> None:
+def cli(
+    config: Configuration,
+    configuration_file: click.Path,
+    verbose: bool,
+) -> None:
     """ Check a given Python dependency file against a set of advisory databases."""
+    config.verbose = verbose
 
-    doc = {}
-    if os.path.exists(str(configuration_file)):
-        with open(str(configuration_file)) as fh:
-            doc = tomlkit.parse(fh.read())
+    file_ = str(configuration_file)
+    skip_configuration = not os.environ.get("SKJOLD_SKIP_RC", None) is None
+
+    if os.path.exists(file_) and not skip_configuration:
+        settings = get_configuration_from_toml(file_)
+        config.use(config=settings)
     else:
         click.secho("Warning: No 'pyproject.toml' found!", err=True, fg="yellow")
 
-    _config = doc.get("tool", {}).get("skjold", {})
-
-    # Configuration file
-    config.report_only = _config.get("report_only", config.report_only)
-    config.report_format = _config.get("report_format", config.report_format)
-    config.cache_dir = _config.get("cache_dir", config.cache_dir)
-    config.cache_expires = _config.get("cache_expires", config.cache_expires)
-    config.verbose = verbose
-
-    # Configure cache_dir selection: ENV > pyproject.toml > default(posix).
-    app_home = click.get_app_dir("skjold", roaming=False, force_posix=True)
-    default_cache_dir = os.path.join(app_home, "cache")
-    config.cache_dir = os.environ.get(
-        "SKJOLD_CACHE_DIR", _config.get("cache_dir", default_cache_dir)
-    )
     if config.verbose:
+        print_configuration(config)
         click.secho(f"Using {config.cache_dir} as cache location", err=True)
 
+    # Cache Directory
     # Check for cache directory and create it if necessary.
     if not os.path.isdir(config.cache_dir):
         os.makedirs(config.cache_dir, exist_ok=True)
         if config.verbose:
             click.secho(
-                f"Cache '{config.cache_dir}' does not exist! Creating it.", err=True
+                f"Cache '{config.cache_dir}' does not exist! Creating it.",
+                err=True,
             )
 
     if not os.path.isdir(config.cache_dir):
         raise click.ClickException(
             f"Unable to create cache directory '{config.cache_dir}'!"
         )
-
-    # Configure and validate sources.
-    config.sources = _config.get("sources", [])
-    if not len(config.sources):
-        click.secho("Warning: No advisory sources configured!", err=True, fg="yellow")
-
-    for source_name in config.sources:
-        if not is_registered_source(source_name):
-            raise click.ClickException(
-                f"Source with name '{source_name}' does not exist!"
-            )
-
-    if config.verbose:
-        print_configuration(config)
 
 
 @cli.command("config")  # pragma: no cover
@@ -107,7 +95,7 @@ def config_(config: Configuration) -> None:
     "-r",
     "--report-only",
     is_flag=True,
-    default=False,
+    cls=default_from_context("report_only", Configuration),
     help="Only report findings, always exit with zero.",
     show_default=True,
 )
@@ -116,7 +104,7 @@ def config_(config: Configuration) -> None:
     "-o",
     "--report-format",
     type=click.Choice(["json", "cli"], case_sensitive=True),
-    default="cli",
+    cls=default_from_context("report_format", Configuration),
     help="Output format",
     show_default=True,
 )
@@ -134,7 +122,7 @@ def config_(config: Configuration) -> None:
     "-s",
     "--sources",
     type=click.Choice(get_registered_sources(), case_sensitive=True),
-    default=[],
+    cls=default_from_context("sources", Configuration),
     help="Identifier of a registered advisory source.",
     show_default=False,
     multiple=True,

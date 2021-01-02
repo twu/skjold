@@ -83,8 +83,6 @@ def test_ensure_is_affected_single(
     assert len(obj.vulnerable_version_range) == 1
     assert obj.is_affected(package_version) is is_vulnerable
 
-    # print(obj.as_dict)
-
 
 @pytest.mark.parametrize(
     "source_name, package_name, package_version, is_vulnerable",
@@ -107,7 +105,6 @@ def test_ensure_source_is_affected_single(
     cache_dir: str,
 ) -> None:
 
-    import skjold.sources
     from skjold.tasks import _sources
 
     assert source_name in _sources
@@ -151,3 +148,15 @@ def test_pyup_handle_metadata(cache_dir: str) -> None:
         pyup.populate_from_cache()
         assert pyup.total_count == 1
         assert pyup.last_updated_at == datetime.datetime(2020, 10, 1, 6, 0, 1)
+
+
+def test_ensure_accessing_advisories_triggers_update(
+    cache_dir: str, mocker: Any
+) -> None:
+    source = PyUp(cache_dir=cache_dir, cache_expires=3600)
+    assert len(source.advisories) > 0
+
+    spy = mocker.spy(source, "update")
+    assert len(source.get_security_advisories()) > 50
+    assert spy.assert_called
+    assert source.total_count > 50

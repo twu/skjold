@@ -4,7 +4,7 @@ import os
 from typing import TextIO, MutableMapping, Callable, Optional, Iterator
 
 import click
-import tomlkit
+import toml
 
 from skjold.models import PackageList, Package, SkjoldException
 from skjold.tasks import Configuration
@@ -12,7 +12,7 @@ from skjold.tasks import Configuration
 
 def read_poetry_lock_from(file: TextIO) -> Iterator[Package]:
     """Reads a poetry.lock given by path and yields 'package==version' items."""
-    doc = tomlkit.parse(file.read())
+    doc = toml.loads(file.read())
     for package in doc.get("package", []):
         yield package["name"], package["version"]
 
