@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import os
 import json
-import pprint
+import os
+import urllib.request
 from collections import defaultdict
 from typing import List, Tuple, Optional, Iterator, Dict, Any
 
-import requests
 import semver
+
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source
 
@@ -116,13 +116,18 @@ def _query_github_graphql(
         }}
     }}
     """
-    response = requests.post(
-        "https://api.github.com/graphql",
-        json={"query": query},
-        headers={"Accept": "application/json", "Authorization": f"Bearer {_api_token}"},
+    payload = json.dumps({"query": query}).encode("utf-8")
+    request_ = urllib.request.Request(
+        url="https://api.github.com/graphql",
+        data=payload,
+        headers={
+            "Accept": "application/json",
+            "Authorization": f"Bearer {_api_token}",
+            "Content-Type": "application/json; charset=utf-8",
+        },
     )
-    response.raise_for_status()
-    _data = response.json()
+    with urllib.request.urlopen(request_) as response:
+        _data = json.loads(response.read())
 
     has_next = _data["data"]["securityVulnerabilities"]["pageInfo"]["hasNextPage"]
     cursor = _data["data"]["securityVulnerabilities"]["pageInfo"]["endCursor"]
@@ -143,48 +148,6 @@ def _fetch_github_security_advisories(
         total_count, cursor, has_next, data = _query_github_graphql(limit, cursor)
         for entry in data:
             yield entry
-
-
-def _is_vulnerable_package(package: str, version: str) -> None:  # pragma: no cover
-    _api_token = os.environ["SKJOLD_GITHUB_API_TOKEN"]
-    query = f"""
-    {{
-        securityVulnerabilities(first: 10, package: "{package}" orderBy: {{ field: UPDATED_AT, direction: DESC }}) {{
-            totalCount
-            edges {{
-                node {{
-                    advisory {{
-                        ghsaId
-                        publishedAt
-                        summary
-                        references {{
-                          uri
-                        }}
-
-                    }}
-                    firstPatchedVersion {{
-                        identifier
-                    }}
-                    package {{
-                        ecosystem
-                        name
-                    }}
-                    severity
-                    updatedAt
-                    vulnerableVersionRange
-                }}
-            }}
-        }}
-    }}
-    """
-    response = requests.post(
-        "https://api.github.com/graphql",
-        json={"query": query},
-        headers={"Accept": "application/json", "Authorization": f"Bearer {_api_token}"},
-    )
-    response.raise_for_status()
-    _data = response.json()
-    pprint.pprint(_data)
 
 
 class Github(SecurityAdvisorySource):

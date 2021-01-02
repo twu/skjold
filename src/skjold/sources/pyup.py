@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+import datetime
 import json
 import os
-import datetime
+import urllib.request
 from collections import defaultdict
 from typing import Tuple, List, Dict, Callable, Union, Any
 
-import requests
 import semver
 
 from skjold.models import SecurityAdvisorySource, SecurityAdvisory
@@ -60,9 +60,9 @@ class PyUpSecurityAdvisory(SecurityAdvisory):
 
     def is_affected(self, version: str) -> bool:
         version_ = semver.Version.parse(version)
-        allows_: Callable[
-            [semver.VersionConstraint], bool
-        ] = lambda x: True if x.allows(version_) else False
+        allows_: Callable[[semver.VersionConstraint], bool] = (
+            lambda x: True if x.allows(version_) else False
+        )
         # affected_versions = map(lambda x: x.allows(version), self.vulnerable_version_range)
         affected_versions = map(allows_, self.vulnerable_version_range)
         return any(affected_versions)
@@ -97,7 +97,6 @@ class PyUp(SecurityAdvisorySource):
             return json_
 
     def populate_from_cache(self) -> None:
-        assert os.path.exists(self.path)
         self._advisories = defaultdict(list)
 
         cache_ = self._load_cache()
@@ -111,9 +110,13 @@ class PyUp(SecurityAdvisorySource):
                 self._advisories[obj.package_name].append(obj)
 
     def update(self) -> None:
-        response = requests.get(self._url)
-        response.raise_for_status()
-        json_ = response.json()
+        request_ = urllib.request.Request(
+            url=self._url,
+            headers={"Accept": "application/json"},
+        )
+        with urllib.request.urlopen(request_) as response:
+            json_ = json.loads(response.read())
+
         with open(self.path, "w") as fh:
             json.dump(json_, fh)
 
