@@ -28,7 +28,11 @@ def read_pipfile_lock_from(file: TextIO) -> Iterator[Package]:
                 continue
 
             pinned_package_version = package_info["version"]
-            assert "==" in pinned_package_version
+            if not pinned_package_version.startswith("=="):
+                raise SkjoldException(
+                    f"Unexpected value for pinned version '{pinned_package_version}'!"
+                )
+
             package_version = pinned_package_version.replace("==", "")
             yield package_name, package_version
 
@@ -82,10 +86,9 @@ def extract_package_list_from(
         if configuration.verbose:
             click.secho(f"Assuming '{format_}' from filename.", err=True)
 
-    assert format_ in Format.SUPPORTED_FORMATS.keys()
     reader_func = Format.SUPPORTED_FORMATS.get(format_, None)
     if not reader_func:
-        raise SkjoldException(f"Unsupported file or format!")
+        raise SkjoldException(f"Unsupported file or format '{format_}'!")
 
     _packages = []
     for package in reader_func(file):
