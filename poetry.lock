@@ -317,7 +317,7 @@ testing = ["fields", "hunter", "process-tests (==2.0.2)", "six", "pytest-xdist",
 
 [[package]]
 name = "pytest-mock"
-version = "3.5.0"
+version = "3.5.1"
 description = "Thin-wrapper around the mock package for easier use with pytest"
 category = "dev"
 optional = false
@@ -458,7 +458,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "17e6548c2338e32b3c95365fc8f2aed88a9c101adf93ad79edbf7f8e89af4c08"
+content-hash = "c65b46f1dbd6fb4aeb88f0d97245d3dd80bbb8611a9dd659250bbbe42a82728c"
 
 [metadata.files]
 appdirs = [
@@ -631,8 +631,8 @@ pytest-cov = [
     {file = "pytest_cov-2.10.1-py2.py3-none-any.whl", hash = "sha256:45ec2d5182f89a81fc3eb29e3d1ed3113b9e9a873bcddb2a71faaab066110191"},
 ]
 pytest-mock = [
-    {file = "pytest-mock-3.5.0.tar.gz", hash = "sha256:4992db789175540d40a193bc60e987b1e69f1a989adad525a44e581c82149b14"},
-    {file = "pytest_mock-3.5.0-py3-none-any.whl", hash = "sha256:f9d77233b3af6c71cec6a8b8b5e9e9a2effd1bb6ff56e9ace72541ff6843ac81"},
+    {file = "pytest-mock-3.5.1.tar.gz", hash = "sha256:a1e2aba6af9560d313c642dae7e00a2a12b022b80301d9d7fc8ec6858e1dd9fc"},
+    {file = "pytest_mock-3.5.1-py3-none-any.whl", hash = "sha256:379b391cfad22422ea2e252bdfc008edd08509029bcde3c25b2c0bd741e0424e"},
 ]
 pytest-sugar = [
     {file = "pytest-sugar-0.9.4.tar.gz", hash = "sha256:b1b2186b0a72aada6859bea2a5764145e3aaa2c1cfbb23c3a19b5f7b697563d3"},
