@@ -25,7 +25,7 @@ It currently supports fetching advisories from the following sources:
 No source is enabled by default! Individual sources can be enabled by setting `sources` list (see [Configuration](#configuration)). There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates.
 
 ## Motivation
-Skjold was initially created for myself to replace `safety`. Which appears to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282)). I wanted something I can run locally and use for my local or private projects/scripts.
+Skjold was initially created for myself to replace `safety`. ~Which appears to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282))~. I wanted something I can run locally and use for my local or private projects/scripts.
 
 I currently also use it during CI builds and before deploying/publishing containers or packages.
 
