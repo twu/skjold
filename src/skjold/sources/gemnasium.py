@@ -59,9 +59,12 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
 
     @property
     def vulnerable_version_range(self) -> List[semver.VersionConstraint]:
-        return [
-            semver.parse_constraint(x) for x in self._json["affected_range"].split("||")
-        ]
+        affected_range = self._json["affected_range"]
+
+        if not affected_range:
+            return [semver.parse_constraint(">=0.0.0")]
+
+        return [semver.parse_constraint(x) for x in affected_range.split("||")]
 
     @property
     def vulnerable_versions(self) -> str:

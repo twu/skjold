@@ -59,6 +59,25 @@ def test_ensure_gemnasium_advisory_from_yaml_with_cvss2_only() -> None:
     )
 
 
+def test_ensure_gemnasium_advisory_from_yaml_with_empty_affected_range_string() -> None:
+    obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("CVE-2020-28476.yml"))
+    assert "cvss_v2" in obj._json
+    obj._json.pop("cvss_v3", None)
+
+    assert obj.package_name == "tornado"
+    assert obj.identifier == "CVE-2020-28476"
+    assert obj.source == "gemnasium"
+    assert obj.severity == "MEDIUM"
+    assert obj.url == "https://nvd.nist.gov/vuln/detail/CVE-2020-28476"
+    assert obj.references == [
+        "https://nvd.nist.gov/vuln/detail/CVE-2020-28476",
+    ]
+    assert obj.vulnerable_versions == ">=0.0.0"
+    assert obj.summary.startswith(
+        "Inconsistent Interpretation of HTTP Requests (HTTP Request Smuggling)"
+    )
+
+
 def test_ensure_gemnasium_advisory_from_yaml_with_no_cvss_vector() -> None:
     obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("CVE-2014-1932.yml"))
 
