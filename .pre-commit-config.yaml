@@ -7,7 +7,6 @@ repos:
     hooks:
     -   id: mixed-line-ending
     -   id: trailing-whitespace
-    -   id: fix-encoding-pragma
     -   id: check-merge-conflict
     -   id: check-ast
     -   id: check-yaml
