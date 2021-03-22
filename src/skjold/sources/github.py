@@ -140,13 +140,11 @@ def _fetch_github_security_advisories(
     limit: int = 100,
 ) -> Iterator[Tuple[int, str, bool, dict]]:
     total_count, cursor, has_next, data = _query_github_graphql(limit, None)
-    for entry in data:
-        yield entry
+    yield from data
 
     while has_next:
         total_count, cursor, has_next, data = _query_github_graphql(limit, cursor)
-        for entry in data:
-            yield entry
+        yield from data
 
 
 class Github(SecurityAdvisorySource):

@@ -16,7 +16,7 @@ def default_from_context(attr: str, cls: object) -> Type[click.Option]:
     class OptionDefaultFromContext(click.Option):
         def get_default(self, ctx: Any) -> Any:
             self.default = getattr(ctx.find_object(cls), attr)
-            return super(OptionDefaultFromContext, self).get_default(ctx)
+            return super().get_default(ctx)
 
     return OptionDefaultFromContext
 
@@ -28,7 +28,7 @@ def get_configuration_from_toml(filename: str) -> Any:
     return section
 
 
-class Configuration(object):
+class Configuration:
     sources: List[str] = []  # Advisory sources enabled by default.
     report_only: bool = (
         False  # Return non-zero exit code when vulnerabilities are found.
