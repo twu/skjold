@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 from typing import TextIO, MutableMapping, Callable, Optional, Iterator

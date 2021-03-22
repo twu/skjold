@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains actual task implementations that can be either called directly or via the click cli."""
 import json
 import os
