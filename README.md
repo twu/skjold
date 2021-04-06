@@ -3,7 +3,7 @@
 ![](https://img.shields.io/pypi/status/skjold?color=black&style=flat-square)
 ![](https://img.shields.io/pypi/pyversions/skjold?color=black&logo=python&logoColor=white&style=flat-square)
 ![](https://img.shields.io/pypi/l/skjold?color=black&label=License&style=flat-square)
-![](https://img.shields.io/pypi/dm/skjold?color=black&label=Downloads&style=flat-square)
+![](https://static.pepy.tech/personalized-badge/skjold?period=month&left_color=grey&right_color=black&left_text=Downloads/Month)
 [![](https://api.codeclimate.com/v1/badges/9f756df1ff145e6004a7/maintainability)](https://codeclimate.com/github/twu/skjold/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/9f756df1ff145e6004a7/test_coverage)](https://codeclimate.com/github/twu/skjold/test_coverage)
 
