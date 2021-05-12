@@ -55,8 +55,8 @@ For further options please read `skjold --help` and/or `skjold audit --help`.
 All examples involving `github` assume that `SKJOLD_GITHUB_API_TOKEN` is already set (see [Github](#github)).
 
 ```sh
-# Using pip freeze. Checking against GitHub only.
-$ pip freeze | skjold audit -s github -
+# Using pip list. Checking against GitHub only.
+$ pip list --format=freeze | skjold audit -s github -
 
 # Be verbose. Read directly from supported formats.
 $ skjold -v audit requirements.txt
@@ -70,7 +70,7 @@ $ poetry export -f requirements.txt | skjold audit -s github -s gemnasium -s pyu
 $ poetry export -f requirements.txt | skjold audit -o json -s github - | jq '.[0]'
 
 # Using Pipenv, checking against Github
-$ pipenv run pip freeze | skjold audit -s github -
+$ pipenv run pip list --format=freeze | skjold audit -s github -
 
 # Checking a single package via stdin against Github and format findings as json.
 echo "urllib3==1.23" | skjold audit -o json -r -s github -
