@@ -99,7 +99,7 @@ echo "urllib3==1.23" | skjold audit -o json -r -s github -
 sources = ["github", "pyup", "gemnasium"]  # Sources to check against.
 report_only = true                         # Report only, always exit with zero.
 report_format = 'json'                     # Output findings as `json`. Default is 'cli'.
-cache_dir = '.skylt_cache'                 # Cache location (default: `~/.skjold/cache`).
+cache_dir = '.skjold_cache'                # Cache location (default: `~/.skjold/cache`).
 cache_expires = 86400                      # Cache max. age.
 verbose = true                             # Be verbose.
 ```
