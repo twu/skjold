@@ -73,7 +73,7 @@ $ poetry export -f requirements.txt | skjold audit -o json -s github - | jq '.[0
 $ pipenv run pip list --format=freeze | skjold audit -s github -
 
 # Checking a single package via stdin against Github and format findings as json.
-echo "urllib3==1.23" | skjold audit -o json -r -s github -
+$ echo "urllib3==1.23" | skjold audit -o json -r -s github -
 [
   {
     "severity": "HIGH",
@@ -90,7 +90,7 @@ echo "urllib3==1.23" | skjold audit -o json -r -s github -
 ]
 
 # Checking a single package via stdin against Gemnasium and report findings (`-o cli`).
-echo "urllib3==1.23" | skjold audit -o cli -r -s gemnasium -
+$ echo "urllib3==1.23" | skjold audit -o cli -r -s gemnasium -
 
 urllib3==1.23 (<=1.24.2) via gemnasium
 
