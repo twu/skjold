@@ -88,6 +88,21 @@ echo "urllib3==1.23" | skjold audit -o json -r -s github -
     "url": "https://github.com/advisories/GHSA-mh33-7rrq-662w"
   }
 ]
+
+# Checking a single package via stdin against Github and report findings (`-o cli`).
+echo "urllib3==1.23" | skjold audit -o cli -r -s github -
+
+urllib3==1.23 (<1.26.5) via github
+
+Catastrophic backtracking in URL authority parser when passed URL containing many @ characters
+https://github.com/advisories/GHSA-q2q7-5pp4-w6pg
+--
+
+urllib3==1.23 (<1.24.2) via github
+
+High severity vulnerability that affects urllib3
+https://github.com/advisories/GHSA-mh33-7rrq-662w
+--
 ```
 
 ### Configuration
