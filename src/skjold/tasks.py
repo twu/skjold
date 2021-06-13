@@ -145,6 +145,9 @@ def report(configuration: Configuration, results: List[Dict[str, Any]]) -> None:
         click.secho("")
         click.secho(textwrap.fill(result["summary"], 79), fg="white")
         click.secho(result["url"], fg="green")
+        click.secho("")
+        for reference in result["references"]:
+            click.secho(reference, fg="white")
         click.secho("-- ")
 
 
