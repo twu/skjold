@@ -142,6 +142,15 @@ def test_ensure_is_affected(
     assert obj.is_affected(package_version) is is_vulnerable
 
 
+@pytest.mark.parametrize(
+    "package_version", ["1.11.26", "0.1.6", "2.2.8", "2.2.9rc2", "3.0.0", "3.2", "4"]
+)
+def test_osv_advisory_ensure_marked_affected_by_default(package_version: str) -> None:
+    obj = OSVSecurityAdvisory.using({"package": {"name": "package"}})
+    assert obj.package_name == "package"
+    assert obj.is_affected(package_version)
+
+
 def test_osv_advisory_with_vulnerable_package_via_osv_api() -> None:
     vulnerabilities = _osv_dev_api_request("jinja2", "2.11.2")
     assert vulnerabilities[0]
