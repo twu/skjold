@@ -75,7 +75,7 @@ $ poetry export -f requirements.txt | skjold audit -o json -s github - | jq '.[0
 $ pipenv run pip list --format=freeze | skjold audit -s github -
 
 # Checking a single package via stdin against Github and format findings as json.
-echo "urllib3==1.23" | skjold audit -o json -r -s github -
+$ echo "urllib3==1.23" | skjold audit -o json -r -s github -
 [
   {
     "severity": "HIGH",
@@ -90,6 +90,36 @@ echo "urllib3==1.23" | skjold audit -o json -r -s github -
     "url": "https://github.com/advisories/GHSA-mh33-7rrq-662w"
   }
 ]
+
+# Checking a single package via stdin against Gemnasium and report findings (`-o cli`).
+$ echo "urllib3==1.23" | skjold audit -o cli -r -s gemnasium -
+
+urllib3==1.23 (<=1.24.2) via gemnasium
+
+CRLF injection. In the urllib3 library for Python, CRLF injection is possible
+if the attacker controls the request parameter.
+https://nvd.nist.gov/vuln/detail/CVE-2019-11236
+--
+
+urllib3==1.23 (<1.24.2) via gemnasium
+
+Weak Authentication Caused By Improper Certificate Validation. The urllib3
+library for Python mishandles certain cases where the desired set of CA
+certificates is different from the OS store of CA certificates, which results
+in SSL connections succeeding in situations where a verification failure is the
+correct outcome. This is related to use of the `ssl_context`, `ca_certs`, or
+`ca_certs_dir` argument.
+https://nvd.nist.gov/vuln/detail/CVE-2019-11324
+--
+
+urllib3==1.23 (<1.25.9) via gemnasium
+
+Injection Vulnerability. urllib3 allows CRLF injection if the attacker controls
+the HTTP request method, as demonstrated by inserting `CR` and `LF` control
+characters in the first argument of `putrequest()`. NOTE: this is similar to
+CVE-2020-26116.
+https://nvd.nist.gov/vuln/detail/CVE-2020-26137
+--
 ```
 
 ### Configuration
