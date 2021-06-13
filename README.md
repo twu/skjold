@@ -21,6 +21,8 @@ It currently supports fetching advisories from the following sources:
 - [GitHub Advisory Database](https://github.com/advisories)
 - [PyUP.io safety-db](https://github.com/pyupio/safety-db)
 - [GitLab gemnasium-db](https://gitlab.com/gitlab-org/security-products/gemnasium-db)
+- [PYPA Advisory Database](https://github.com/pypa/advisory-db) (EXPERIMENTAL)
+- [OSV.dev Database](https://osv.dev) (EXPERIMENTAL)
 
 No source is enabled by default! Individual sources can be enabled by setting `sources` list (see [Configuration](#configuration)). There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates.
 

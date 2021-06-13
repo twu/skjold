@@ -1,0 +1,18 @@
+id: PYSEC-0000-0
+package:
+  name: package
+  ecosystem: PyPI
+details: Too much cheese in the cheeseshop!
+affects:
+  ranges:
+  - type: ECOSYSTEM
+    introduced: 1.0.0
+aliases:
+- CVE-0000-12345
+modified: '2020-01-01T00:00:00Z'
+published: '2020-01-01T00:00:00Z'
+references:
+- type: WEB
+  url: https://www.pypi.org
+- type: WEB
+  url: https://www.python.org

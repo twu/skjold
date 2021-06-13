@@ -63,8 +63,8 @@ types-PyYAML = "^0.1.8"
 
 [tool.skjold]
 report_only = true
-report_format = 'json'
-sources = ["pyup", "github", "gemnasium"]
+report_format = 'cli'
+sources = ["pyup", "github", "gemnasium", "osv", "pypa"]
 cache_dir = ".skjold_cache"
 cache_expires = 43200
 

@@ -62,7 +62,7 @@ class Configuration:
 
     @property
     def app_home(self) -> str:
-        return click.get_app_dir("skjold", roaming=False, force_posix=True)
+        return str(click.get_app_dir("skjold", roaming=False, force_posix=True))
 
     @property
     def default_cache_dir(self) -> str:
