@@ -9,6 +9,7 @@ import click
 import skjold.sources
 
 from skjold.formats import extract_package_list_from, Format
+from skjold.ignore import SkjoldIgnore
 from skjold.tasks import (
     Configuration,
     audit,
@@ -164,7 +165,9 @@ def audit_(
         click.secho(f"{config.sources}", fg="green", nl=False, err=True)
         click.secho(" as source(s).", err=True)
 
-    results, vulnerable = audit(config, packages)
+    ignore = SkjoldIgnore.using(config.ignore_file)
+
+    results, vulnerable = audit(config, packages, ignore=ignore)
 
     report(config, results)
 
