@@ -166,6 +166,8 @@ repos:
 
 After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](./pyproject.toml) for an example.
 
+**Important!**: If you use `report_only` in any way make sure that you add `require_serial: true` to your hook configuration otherwise `pre-commit` won't show you any output since the hook is returning with a zero exit code!
+
 ## Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
