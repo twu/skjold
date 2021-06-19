@@ -133,6 +133,7 @@ report_only = true                         # Report only, always exit with zero.
 report_format = 'json'                     # Output findings as `json`. Default is 'cli'.
 cache_dir = '.skjold_cache'                # Cache location (default: `~/.skjold/cache`).
 cache_expires = 86400                      # Cache max. age.
+ignore_file = '.skjoldignore'              # Ignorefile location (default `.skjoldignore`).
 verbose = true                             # Be verbose.
 ```
 
@@ -145,6 +146,7 @@ report_format: json
 verbose: False
 cache_dir: .skjold_cache
 cache_expires: 86400
+ignore_file = '.skjoldignore'
 ```
 
 #### Github
