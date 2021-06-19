@@ -74,3 +74,8 @@ jobs:
         PYTHONPATH: src
       run: |
         echo "urllib3==1.22" | poetry run skjold -v audit -o json -r -s osv -
+    - name: Run .skjoldignore example
+      env:
+        PYTHONPATH: src
+      run: |
+        echo "urllib3==1.23" | skjold audit -s pypa -i tests/fixtures/formats/ignore/all -

@@ -49,7 +49,9 @@ class Configuration:
             "SKJOLD_CACHE_DIR", config.get("cache_dir", self.default_cache_dir)
         )
         self.cache_expires = config.get("cache_expires", self.cache_expires)
-        self.ignore_file = config.get("ignore_file", self.ignore_file)
+        self.ignore_file = os.environ.get(
+            "SKJOLD_IGNORE_FILE", config.get("ignore_file", self.ignore_file)
+        )
         # self.verbose = bool(config.get("verbose", self.verbose))
 
         # Sources

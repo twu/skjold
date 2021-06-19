@@ -66,6 +66,7 @@ def cli(
     if config.verbose:
         print_configuration(config)
         click.secho(f"Using {config.cache_dir} as cache location", err=True)
+        click.secho(f"Using {config.ignore_file} as ignore file", err=True)
 
     # Cache Directory
     # Check for cache directory and create it if necessary.
@@ -119,6 +120,15 @@ def config_(config: Configuration) -> None:
     show_default=True,
 )
 @click.option(
+    "ignore_file",
+    "-i",
+    "--ignore-file",
+    type=str,
+    cls=default_from_context("ignore_file", Configuration),
+    help="Ignore file location.",
+    show_default=True,
+)
+@click.option(
     "sources",
     "-s",
     "--sources",
@@ -135,6 +145,7 @@ def audit_(
     report_only: bool,
     report_format: str,
     file_format: str,
+    ignore_file: str,
     sources: List[str],
     file: TextIO,
 ) -> None:
@@ -146,6 +157,8 @@ def audit_(
     """
     config.report_only = report_only
     config.report_format = report_format
+    config.ignore_file = ignore_file
+
     # Only override sources if at least once --source is passed.
     if len(sources) > 0:
         config.sources = list(set(sources))
