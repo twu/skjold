@@ -134,6 +134,12 @@ Ignore urllib3 in PYSEC-2020-148 until ...?
 No immediate remediation.
 --
 Add to '.skjoldignore'? [y/N]: y
+
+# Audit `poetry.lock` using a custom `.skjoldignore` file location via `ENV`...
+$ SKJOLD_IGNORE_FILE=<path-to-file> skjold audit -s pyup poetry.lock
+
+# ... or using -i/--ignore-file
+$ skjold audit -s pyup -i <path-to-file> poetry.lock
 ```
 
 ### Configuration
