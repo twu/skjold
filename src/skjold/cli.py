@@ -168,26 +168,13 @@ def audit_(
 
     ignore = SkjoldIgnore.using(config.ignore_file)
 
-    results, vulnerable = audit(config, packages, ignore=ignore)
+    findings = audit(config, packages, ignore=ignore)
 
-    report(config, results)
-
-    if len(vulnerable) > 0 and config.verbose:
-        click.secho("", err=True)
-        click.secho(
-            f"  Found {len(vulnerable)} vulnerable packages!",
-            fg="red",
-            blink=True,
-            err=True,
-        )
-        click.secho("", err=True)
-    elif config.verbose:
-        click.secho("", err=True)
-        click.secho(f"  No vulnerable packages found!", fg="green", err=True)
+    vulnerable_packages, _ = report(config, findings)
 
     # By default we want to exit with a non-zero exit-code when we encounter
     # any findings.
-    if not config.report_only and len(vulnerable) > 0:
+    if not config.report_only and len(vulnerable_packages) > 0:
         sys.exit(1)
 
 

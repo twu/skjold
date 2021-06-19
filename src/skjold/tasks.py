@@ -118,14 +118,22 @@ def print_configuration(configuration: Configuration, stderr: bool = True) -> No
         click.secho("", err=stderr)
 
 
-def report(configuration: Configuration, results: List[Dict[str, Any]]) -> None:
-    """..."""
+def report(
+    configuration: Configuration, findings: List[Dict[str, Any]]
+) -> Tuple[Set[str], List[str]]:
+    """Renders (ignored) findings and list of vulnerable packages to stdout and prints a short summary to stderr."""
+    vulnerable_packages, ignored_findings = set({}), []
+    for finding in findings:
+        if finding["ignored"]["ignored"]:
+            ignored_findings.append(finding["identifier"])
+        else:
+            vulnerable_packages.add(finding["name"])
 
     if configuration.report_format == "json":
-        click.echo(json.dumps(results, indent=2))
-        return
+        click.echo(json.dumps(findings, indent=2))
+        return vulnerable_packages, ignored_findings
 
-    for result in results:
+    for finding in findings:
         # https://nvd.nist.gov/vuln-metrics/cvss
         _color = {
             "NONE": "white",
@@ -135,56 +143,73 @@ def report(configuration: Configuration, results: List[Dict[str, Any]]) -> None:
             "HIGH": "red",
             "CRITICAL": "red",
             "UNKNOWN": "red",
-        }.get(result["severity"])
+        }.get(finding["severity"])
 
-        if result["ignored"]["ignored"]:
+        if finding["ignored"]["ignored"]:
             click.secho("")
-            click.secho(result["name"], fg="white", nl=False)
+            click.secho(finding["name"], fg="white", nl=False)
             click.secho("==", nl=False)
-            click.secho(result["version"], fg=_color, nl=False)
+            click.secho(finding["version"], fg=_color, nl=False)
             click.secho(" (", nl=False)
-            click.secho(result["versions"], fg=_color, nl=False)
+            click.secho(finding["versions"], fg=_color, nl=False)
             click.secho(") via ", nl=False)
-            click.secho(result["source"], fg="cyan", nl=False)
+            click.secho(finding["source"], fg="cyan", nl=False)
             click.secho(" as ", nl=False)
-            click.secho(result["identifier"], fg="yellow", nl=False)
+            click.secho(finding["identifier"], fg="yellow", nl=False)
             click.secho(" ignored until ", nl=False)
-            click.secho(result["ignored"]["expires"], fg="cyan", nl=False)
+            click.secho(finding["ignored"]["expires"], fg="cyan", nl=False)
             click.secho(".")
 
-            click.secho(result["ignored"]["reason"], fg="cyan")
+            click.secho(finding["ignored"]["reason"], fg="cyan")
             click.secho("-- ")
             continue
 
         click.secho("")
-        click.secho(result["name"], fg="white", nl=False)
+        click.secho(finding["name"], fg="white", nl=False)
         click.secho("==", nl=False)
-        click.secho(result["version"], fg=_color, nl=False)
+        click.secho(finding["version"], fg=_color, nl=False)
         click.secho(" (", nl=False)
-        click.secho(result["versions"], fg=_color, nl=False)
+        click.secho(finding["versions"], fg=_color, nl=False)
         click.secho(") via ", nl=False)
-        click.secho(result["source"], fg="cyan", nl=False)
+        click.secho(finding["source"], fg="cyan", nl=False)
         click.secho(" as ", nl=False)
-        click.secho(result["identifier"], fg="yellow", nl=False)
+        click.secho(finding["identifier"], fg="yellow", nl=False)
         click.secho("")
 
         click.secho("")
-        click.secho(textwrap.fill(result["summary"], 79), fg="white")
-        click.secho(result["url"], fg="green")
+        click.secho(textwrap.fill(finding["summary"], 79), fg="white")
+        click.secho(finding["url"], fg="green")
         click.secho("")
-        for reference in result["references"]:
+        for reference in finding["references"]:
             click.secho(reference, fg="white")
         click.secho("-- ")
+
+    # Always print the summary to stderr.
+    if len(ignored_findings):
+        click.secho(
+            f"Ignored {len(ignored_findings)} finding(s)!", fg="yellow", err=True
+        )
+    if len(vulnerable_packages) > 0:
+        click.secho(
+            f"Found {len(vulnerable_packages)} vulnerable package(s)!",
+            fg="red",
+            blink=True,
+            err=True,
+        )
+    else:
+        click.secho(f"No vulnerable packages found!", fg="green", err=True)
+
+    return vulnerable_packages, ignored_findings
 
 
 def audit(
     configuration: Configuration,
     packages: PackageList,
     ignore: SkjoldIgnore,
-) -> Tuple[List[Dict[str, Any]], Set[str]]:
+) -> List[Dict[str, Any]]:
     """..."""
 
-    results, vulnerable_packages = [], set({})
+    findings = []
     for name in configuration.sources:
         source = _sources[name](
             cache_dir=configuration.cache_dir, cache_expires=configuration.cache_expires
@@ -197,13 +222,12 @@ def audit(
                 )
 
                 if is_vulnerable:
-                    vulnerable_packages.add(package_name)
                     for advisory in advisories:
                         # Check if the advisories identifier is part of the ignore list.
                         is_ignored, entry = ignore.should_ignore(
                             advisory.identifier, advisory.package_name
                         )
-                        results.append(
+                        findings.append(
                             {
                                 "identifier": advisory.identifier,
                                 "severity": advisory.severity,
@@ -222,4 +246,4 @@ def audit(
                             }
                         )
 
-    return results, vulnerable_packages
+    return findings
