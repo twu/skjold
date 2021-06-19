@@ -167,7 +167,13 @@ repos:
 
 After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](./pyproject.toml) for an example.
 
-**Important!**: If you use `report_only` in any way make sure that you add `verbose: true` to your hook configuration otherwise `pre-commit` won't show you any output since the hook is returning with a zero exit code!
+> **Important!**: If you use `report_only` in any way make sure that you add `verbose: true` to your hook configuration
+otherwise `pre-commit` won't show you any output since the hook is always returning with a zero exit code due
+to `report_only` being set!
+
+> **Important!**: The hook is **only** triggered if a commit changes a dependency file (e.g. `poetry.lock`). Dependencies
+**are not checked on every commit**! You could run `pre-commit run skjold --all-files` as a workaround to mitigate this
+a little. If you have a better solution please let me know!
 
 ## Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
