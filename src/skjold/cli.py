@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 __version__ = "0.2.1"
 
+import datetime
 import os
 import sys
 from typing import List, TextIO
@@ -9,6 +10,7 @@ import click
 import skjold.sources
 
 from skjold.formats import extract_package_list_from, Format
+from skjold.ignore import SkjoldIgnore
 from skjold.tasks import (
     Configuration,
     audit,
@@ -64,6 +66,7 @@ def cli(
     if config.verbose:
         print_configuration(config)
         click.secho(f"Using {config.cache_dir} as cache location", err=True)
+        click.secho(f"Using {config.ignore_file} as ignore file", err=True)
 
     # Cache Directory
     # Check for cache directory and create it if necessary.
@@ -117,6 +120,15 @@ def config_(config: Configuration) -> None:
     show_default=True,
 )
 @click.option(
+    "ignore_file",
+    "-i",
+    "--ignore-file",
+    type=str,
+    cls=default_from_context("ignore_file", Configuration),
+    help="Ignore file location.",
+    show_default=True,
+)
+@click.option(
     "sources",
     "-s",
     "--sources",
@@ -133,6 +145,7 @@ def audit_(
     report_only: bool,
     report_format: str,
     file_format: str,
+    ignore_file: str,
     sources: List[str],
     file: TextIO,
 ) -> None:
@@ -144,6 +157,8 @@ def audit_(
     """
     config.report_only = report_only
     config.report_format = report_format
+    config.ignore_file = ignore_file
+
     # Only override sources if at least once --source is passed.
     if len(sources) > 0:
         config.sources = list(set(sources))
@@ -164,27 +179,69 @@ def audit_(
         click.secho(f"{config.sources}", fg="green", nl=False, err=True)
         click.secho(" as source(s).", err=True)
 
-    results, vulnerable = audit(config, packages)
+    ignore = SkjoldIgnore.using(config.ignore_file)
 
-    report(config, results)
+    findings = audit(config, packages, ignore=ignore)
 
-    if len(vulnerable) > 0 and config.verbose:
-        click.secho("", err=True)
-        click.secho(
-            f"  Found {len(vulnerable)} vulnerable packages!",
-            fg="red",
-            blink=True,
-            err=True,
-        )
-        click.secho("", err=True)
-    elif config.verbose:
-        click.secho("", err=True)
-        click.secho(f"  No vulnerable packages found!", fg="green", err=True)
+    vulnerable_packages, _ = report(config, findings)
 
     # By default we want to exit with a non-zero exit-code when we encounter
     # any findings.
-    if not config.report_only and len(vulnerable) > 0:
+    if not config.report_only and len(vulnerable_packages) > 0:
         sys.exit(1)
+
+
+@cli.command("ignore")  # pragma: no cover
+@click.option(
+    "reason",
+    "-r",
+    "--reason",
+    type=str,
+    default=SkjoldIgnore.DEFAULT_REASON,
+    help="Reason for the finding to be ignored.",
+    show_default=True,
+)
+@click.option(
+    "expires",
+    "-e",
+    "--expires",
+    type=click.DateTime(formats=[SkjoldIgnore.EXPIRES_FMT]),
+    help="Ignore finding until after this date.",
+    default=SkjoldIgnore.DEFAULT_EXPIRES,
+    show_default=True,
+)
+@click.argument("package", type=str, required=True)
+@click.argument("identifier", type=str, required=True)
+@configuration
+def ignore_(
+    config: Configuration,
+    reason: str,
+    expires: datetime.datetime,
+    package: str,
+    identifier: str,
+) -> None:
+    """
+    Adds a finding with a given source identifier and package name to a `.skjoldignore` file.
+
+    \b
+    IDENTIFIER The vulnerability identifier to ignore e.g. CVE-2021-02231
+    PACKAGE The name of the package for which this identifier should be applied to.
+    """
+    click.secho("Ignore ", nl=False)
+    click.secho(package, fg="red", nl=False)
+    click.secho(" in ", nl=False)
+    click.secho(identifier, fg="red", nl=False)
+    click.secho(" until ", nl=False)
+    click.secho(expires, fg="red", nl=False)
+    click.secho("?")
+
+    click.secho(reason, fg="yellow")
+    click.secho("-- ")
+
+    if click.confirm(f"Add to '{config.ignore_file}'?"):
+        ignore = SkjoldIgnore.using(config.ignore_file)
+        ignore.add(identifier, package, reason=reason, expires=expires)
+        ignore.save()
 
 
 if __name__ == "__main__":

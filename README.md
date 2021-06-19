@@ -120,6 +120,26 @@ characters in the first argument of `putrequest()`. NOTE: this is similar to
 CVE-2020-26116.
 https://nvd.nist.gov/vuln/detail/CVE-2020-26137
 --
+
+# Ignore PYSEC-2020-148 finding from PyPA source until a certain date with a specific reason.
+$ skjold ignore urllib3 PYSEC-2020-148 --reason "Very good reason." --expires "2021-01-01T00:00:00+00:00"
+Ignore urllib3 in PYSEC-2020-148 until 2021-01-01 00:00:00+00:00?
+Very good reason.
+--
+Add to '.skjoldignore'? [y/N]: y
+
+# Ignore PYSEC-2020-148 finding from PyPA source for 7 days with "No immediate remediation." reason.
+$ skjold ignore urllib3 PYSEC-2020-148
+Ignore urllib3 in PYSEC-2020-148 until ...?
+No immediate remediation.
+--
+Add to '.skjoldignore'? [y/N]: y
+
+# Audit `poetry.lock` using a custom `.skjoldignore` file location via `ENV`...
+$ SKJOLD_IGNORE_FILE=<path-to-file> skjold audit -s pyup poetry.lock
+
+# ... or using -i/--ignore-file
+$ skjold audit -s pyup -i <path-to-file> poetry.lock
 ```
 
 ### Configuration
@@ -133,6 +153,7 @@ report_only = true                         # Report only, always exit with zero.
 report_format = 'json'                     # Output findings as `json`. Default is 'cli'.
 cache_dir = '.skjold_cache'                # Cache location (default: `~/.skjold/cache`).
 cache_expires = 86400                      # Cache max. age.
+ignore_file = '.skjoldignore'              # Ignorefile location (default `.skjoldignore`).
 verbose = true                             # Be verbose.
 ```
 
@@ -145,6 +166,7 @@ report_format: json
 verbose: False
 cache_dir: .skjold_cache
 cache_expires: 86400
+ignore_file = '.skjoldignore'
 ```
 
 #### Github
@@ -160,9 +182,20 @@ repos:
     rev: vX.X.X
     hooks:
     - id: skjold
+      verbose: true  # Important if used with `report_only`, see below.
 ```
 
-After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend to add the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](./pyproject.toml) for an example.
+After running `pre-commit install` the hook should be good to go. To configure `skjold` in this scenario I recommend adding the entire configuration to the projects `pyproject.toml` instead of manipulating the hook `args`. See this projects [pyproject.toml](./pyproject.toml) for an example.
+
+> **Important!**: When using `skjold` as a `pre-commit`-hook it only gets triggered if you want to commit changed dependency files (e.g. `Pipenv.lock`, `poetry.lock`, `requirements.txt`,...).
+> It will not continuously check your dependencies on _every_ commit!
+
+You could run `pre-commit run skjold --all-files` manually in your workflow/scripts or run `skjold` manually.
+If you have a better solution please let me know!
+
+> **Important!**: If you use `report_only` in any way make sure that you add `verbose: true` to your hook configuration
+otherwise `pre-commit` won't show you any output since the hook is always returning with a zero exit code due
+to `report_only` being set!
 
 ## Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.

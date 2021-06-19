@@ -63,11 +63,12 @@ types-toml = "^0.1.2"
 types-PyYAML = "^0.1.8"
 
 [tool.skjold]
-report_only = true
+report_only = false
 report_format = 'cli'
 sources = ["pyup", "github", "gemnasium", "osv", "pypa"]
 cache_dir = ".skjold_cache"
 cache_expires = 43200
+ignore_file = ".skjoldignore"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
