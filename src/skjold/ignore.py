@@ -10,6 +10,8 @@ class SkjoldIgnore:
     _path: str
 
     EXPIRES_FMT = "%Y-%m-%dT%H:%M:%S%z"
+    DEFAULT_EXPIRES = datetime.datetime.now() + datetime.timedelta(days=7)
+    DEFAULT_REASON = "No immediate remediation."
 
     def __init__(self, path: str):
         self._path = path
@@ -38,7 +40,7 @@ class SkjoldIgnore:
         self,
         identifier: str,
         package_name: str,
-        reason: str = "No immediate remidiation.",
+        reason: str,
         expires: datetime.datetime = datetime.datetime.now()
         + datetime.timedelta(days=14),
     ) -> bool:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 __version__ = "0.2.1"
 
+import datetime
 import os
 import sys
 from typing import List, TextIO
@@ -188,6 +189,59 @@ def audit_(
     # any findings.
     if not config.report_only and len(vulnerable) > 0:
         sys.exit(1)
+
+
+@cli.command("ignore")  # pragma: no cover
+@click.option(
+    "reason",
+    "-r",
+    "--reason",
+    type=str,
+    default=SkjoldIgnore.DEFAULT_REASON,
+    help="Reason for the finding to be ignored.",
+    show_default=True,
+)
+@click.option(
+    "expires",
+    "-e",
+    "--expires",
+    type=click.DateTime(formats=[SkjoldIgnore.EXPIRES_FMT]),
+    help="Ignore finding until after this date.",
+    default=SkjoldIgnore.DEFAULT_EXPIRES,
+    show_default=True,
+)
+@click.argument("package", type=str, required=True)
+@click.argument("identifier", type=str, required=True)
+@configuration
+def ignore_(
+    config: Configuration,
+    reason: str,
+    expires: datetime.datetime,
+    package: str,
+    identifier: str,
+) -> None:
+    """
+    Adds a finding with a given source identifier and package name to a `.skjoldignore` file.
+
+    \b
+    IDENTIFIER The vulnerability identifier to ignore e.g. CVE-2021-02231
+    PACKAGE The name of the package for which this identifier should be applied to.
+    """
+    click.secho("Ignore ", nl=False)
+    click.secho(package, fg="red", nl=False)
+    click.secho(" in ", nl=False)
+    click.secho(identifier, fg="red", nl=False)
+    click.secho(" until ", nl=False)
+    click.secho(expires, fg="red", nl=False)
+    click.secho("?")
+
+    click.secho(reason, fg="yellow")
+    click.secho("-- ")
+
+    if click.confirm(f"Add to '{config.ignore_file}'?"):
+        ignore = SkjoldIgnore.using(config.ignore_file)
+        ignore.add(identifier, package, reason=reason, expires=expires)
+        ignore.save()
 
 
 if __name__ == "__main__":

@@ -50,7 +50,7 @@ def test_should_ignore_not_expired(
             {
                 "expires": "2021-01-01T00:00:00+0000",
                 "package": "urllib3",
-                "reason": "No remidiation available.",
+                "reason": "No remediation available.",
             },
         ),
     ],
@@ -72,13 +72,14 @@ def test_ignore_add_item(ignorelist: SkjoldIgnore) -> None:
 
     expires = datetime.datetime.utcnow() + datetime.timedelta(days=14)
     expires = expires.replace(tzinfo=datetime.timezone.utc)
+    reason = SkjoldIgnore.DEFAULT_REASON
 
-    assert ignorelist.add("SKJ-0000-00", "example", expires=expires)
+    assert ignorelist.add("SKJ-0000-00", "example", expires=expires, reason=reason)
 
     ignored, entry = ignorelist.should_ignore("SKJ-0000-00", "example")
     assert ignored
     assert entry == {
         "package": "example",
-        "reason": "No immediate remidiation.",
+        "reason": reason,
         "expires": expires.strftime(SkjoldIgnore.EXPIRES_FMT),
     }
