@@ -139,7 +139,7 @@ class SecurityAdvisorySource(metaclass=ABCMeta):
     @abstractmethod
     def is_vulnerable_package(
         self, package_name: str, package_version: str
-    ) -> Tuple[bool, List[SecurityAdvisory]]:
+    ) -> Tuple[bool, Sequence[SecurityAdvisory]]:
         raise NotImplementedError
 
     @abstractmethod

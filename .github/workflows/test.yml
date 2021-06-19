@@ -64,3 +64,13 @@ jobs:
         PYTHONPATH: src
       run: |
         echo "urllib3==1.22" | poetry run skjold -v audit -o json -r -s pyup -
+    - name: Run pypa example
+      env:
+        PYTHONPATH: src
+      run: |
+        echo "urllib3==1.22" | poetry run skjold -v audit -o json -r -s pypa -
+    - name: Run osv example
+      env:
+        PYTHONPATH: src
+      run: |
+        echo "urllib3==1.22" | poetry run skjold -v audit -o json -r -s osv -

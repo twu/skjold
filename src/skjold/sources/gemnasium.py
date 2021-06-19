@@ -106,7 +106,7 @@ class Gemnasium(SecurityAdvisorySource):
                     doc = yaml.load(obj_fh, Loader=yaml.SafeLoader)
                     advisory = GemnasiumSecurityAdvisory.using(doc)
                     self._advisories[advisory.package_name.lower()].append(advisory)
-                else:
+                else:  # pragma: no cover
                     raise SkjoldException(
                         f"Unable to extract '{obj.name}' from source archive."
                     )

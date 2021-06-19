@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from skjold.cvss import parse_cvss, CVSS2, CVSS3
