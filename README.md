@@ -120,6 +120,20 @@ characters in the first argument of `putrequest()`. NOTE: this is similar to
 CVE-2020-26116.
 https://nvd.nist.gov/vuln/detail/CVE-2020-26137
 --
+
+# Ignore PYSEC-2020-148 finding from PyPA source until a certain date with a specific reason.
+$ skjold ignore urllib3 PYSEC-2020-148 --reason "Very good reason." --expires "2021-01-01T00:00:00+00:00"
+Ignore urllib3 in PYSEC-2020-148 until 2021-01-01 00:00:00+00:00?
+Very good reason.
+--
+Add to '.skjoldignore'? [y/N]: y
+
+# Ignore PYSEC-2020-148 finding from PyPA source for 7 days with "No immediate remediation." reason.
+$ skjold ignore urllib3 PYSEC-2020-148
+Ignore urllib3 in PYSEC-2020-148 until ...?
+No immediate remediation.
+--
+Add to '.skjoldignore'? [y/N]: y
 ```
 
 ### Configuration
