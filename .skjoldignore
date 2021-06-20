@@ -1,0 +1,6 @@
+ignore:
+  SKJ-2021-001:
+  - expires: 2022-01-01T12:30:00+0000
+    package: skjold
+    reason: Example .skjoldignore entry.
+version: "1.0"

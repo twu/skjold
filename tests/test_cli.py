@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 from typing import Generator
@@ -56,6 +55,59 @@ def test_vulnerable_package_via_cli(
     assert result.exception
     assert result.exit_code == 1
     assert "via github" in result.stdout
+
+
+def test_vulnerable_package_with_ignore_list_via_env(
+    runner: click.testing.CliRunner, cache_dir: str, monkeypatch: MonkeyPatch
+) -> None:
+    """Ensure that using a .skjoldignore file ignores marked findings."""
+    monkeypatch.setenv("SKJOLD_CACHE_DIR", cache_dir)
+    ignore_path = os.path.join(
+        os.path.dirname(__file__), "fixtures", "formats", "ignore", "all"
+    )
+    assert os.path.exists(ignore_path)
+    monkeypatch.setenv("SKJOLD_IGNORE_FILE", ignore_path)
+
+    config = Configuration()
+    config.use({"report_only": False, "report_format": "cli", "sources": ["pypa"]})
+    assert config.ignore_file == ignore_path
+
+    # TODO(twu): Figure out how to do this right.
+    input_ = make_input_stream("urllib3==1.23", "utf-8")
+    setattr(input_, "name", "<stdin>")
+
+    result = runner.invoke(cli, args=["audit", "-"], input=input_, obj=config)
+
+    assert "Ignored 5 finding(s)!" in result.stderr
+    assert "No vulnerable packages found!" in result.stderr
+    assert result.exit_code == 0
+
+
+def test_vulnerable_package_with_ignore_list_via_cli(
+    runner: click.testing.CliRunner, cache_dir: str, monkeypatch: MonkeyPatch
+) -> None:
+    """Ensure that using a .skjoldignore file ignores marked findings and can be set via '-i/--ignore-file'."""
+    monkeypatch.setenv("SKJOLD_CACHE_DIR", cache_dir)
+    ignore_path = os.path.join(
+        os.path.dirname(__file__), "fixtures", "formats", "ignore", "all"
+    )
+    assert os.path.exists(ignore_path)
+
+    config = Configuration()
+    config.use({"report_only": False, "report_format": "cli", "sources": ["pypa"]})
+    assert config.ignore_file == ".skjoldignore"
+
+    # TODO(twu): Figure out how to do this right.
+    input_ = make_input_stream("urllib3==1.23", "utf-8")
+    setattr(input_, "name", "<stdin>")
+
+    result = runner.invoke(
+        cli, args=["audit", "-i", ignore_path, "-"], input=input_, obj=config
+    )
+
+    assert "Ignored 5 finding(s)!" in result.stderr
+    assert "No vulnerable packages found!" in result.stderr
+    assert result.exit_code == 0
 
 
 def test_cli_json_report_with_package_list_via_stdin(

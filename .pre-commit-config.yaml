@@ -38,4 +38,5 @@ repos:
         language: python
         language_version: python3
         files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
+        verbose: true
 

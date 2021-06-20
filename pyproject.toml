@@ -17,7 +17,7 @@ keywords = [
 ]
 # https://pypi.org/classifiers/
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
@@ -31,6 +31,7 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Build Tools",
     "Topic :: Utilities",
+    "Topic :: Security",
     "Typing :: Typed",
 ]
 
@@ -52,19 +53,22 @@ toml = ">=0.10.0"
 pytest-watch = "^4.2.0"
 pytest-sugar = "^0.9.4"
 pytest-mock = "^3.6.1"
-pre-commit = '>=1.20.0'
-black = '>=19.10b0'
+pre-commit = ">=1.20.0"
+black = ">=19.10b0"
 mypy = "^0.902"
 coverage = {extras = ["toml"], version = "^5.5"}
 pytest-cov = "^2.12.1"
 pytest = "^6.2.4"
+types-toml = "^0.1.2"
+types-PyYAML = "^0.1.8"
 
 [tool.skjold]
-report_only = true
-report_format = 'json'
-sources = ["pyup", "github", "gemnasium"]
+report_only = false
+report_format = 'cli'
+sources = ["pyup", "github", "gemnasium", "osv", "pypa"]
 cache_dir = ".skjold_cache"
 cache_expires = 43200
+ignore_file = ".skjoldignore"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -91,6 +95,23 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.mypy]
+python_version = "3.7"
+files = ["src", "tests"]
+ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+disallow_untyped_defs = true
+disallow_untyped_calls = true
+follow_imports = "skip"
+no_implicit_optional = true
+warn_no_return = true
+strict_optional = true
+check_untyped_defs = true
+ignore_errors = false
 
 [tool.coverage.run]
 branch = true
