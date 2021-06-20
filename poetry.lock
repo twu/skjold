@@ -413,7 +413,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-pyyaml"
-version = "0.1.8"
+version = "0.1.9"
 description = "Typing stubs for PyYAML"
 category = "dev"
 optional = false
@@ -421,7 +421,7 @@ python-versions = "*"
 
 [[package]]
 name = "types-toml"
-version = "0.1.2"
+version = "0.1.3"
 description = "Typing stubs for toml"
 category = "dev"
 optional = false
@@ -481,7 +481,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "8c04387bd67d4b36adb3cae881109c2ee8b3915b45cc799d088756c1c3cc606e"
+content-hash = "31a6b64a7c6ef775004dec7c207678c1aaa9ab59e4bac451aadab6a60b449d39"
 
 [metadata.files]
 appdirs = [
@@ -785,10 +785,11 @@ typed-ast = [
     {file = "typed_ast-1.4.3.tar.gz", hash = "sha256:fb1bbeac803adea29cedd70781399c99138358c26d05fcbd23c13016b7f5ec65"},
 ]
 types-pyyaml = [
-    {file = "types_PyYAML-0.1.8-py2.py3-none-any.whl", hash = "sha256:8db1c8ceed4f6e86d54484e40709ad5f684a2f780308ba7a5e3850be9fb5961a"},
+    {file = "types_PyYAML-0.1.9-py2.py3-none-any.whl", hash = "sha256:0ad719fa27fb97ee0aef7866ae90f80aaba226a7e6b900b3e1eb562a85c0e4da"},
 ]
 types-toml = [
-    {file = "types_toml-0.1.2-py2.py3-none-any.whl", hash = "sha256:92fe51b57534bc5c16da2d5e2a712aa229c86f8872df95d5f58dcb6977a376ce"},
+    {file = "types-toml-0.1.3.tar.gz", hash = "sha256:33ebe67bebaec55a123ecbaa2bd98fe588335d8d8dda2c7ac53502ef5a81a79a"},
+    {file = "types_toml-0.1.3-py2.py3-none-any.whl", hash = "sha256:d4add39a90993173d49ff0b069edd122c66ad4cf5c01082b590e380ca670ee1a"},
 ]
 typing-extensions = [
     {file = "typing_extensions-3.10.0.0-py2-none-any.whl", hash = "sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497"},

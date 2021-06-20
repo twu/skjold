@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 
 import datetime
 import os
@@ -51,7 +51,7 @@ def cli(
     configuration_file: click.Path,
     verbose: bool,
 ) -> None:
-    """ Check a given Python dependency file against a set of advisory databases."""
+    """Check a given Python dependency file against a set of advisory databases."""
     config.verbose = verbose
 
     file_ = str(configuration_file)
