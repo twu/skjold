@@ -18,11 +18,14 @@
 ## Introduction
 It currently supports fetching advisories from the following sources:
 
-- [GitHub Advisory Database](https://github.com/advisories) `github`
-- [PyUP.io safety-db](https://github.com/pyupio/safety-db) `pyup`
-- [GitLab gemnasium-db](https://gitlab.com/gitlab-org/security-products/gemnasium-db) `gemnasium`
-- [PYPA Advisory Database](https://github.com/pypa/advisory-db) (EXPERIMENTAL) `pypa`
-- [OSV.dev Database](https://osv.dev) (EXPERIMENTAL) `osv`
+| Source | Name | Notes |
+| ------:|:----:|:------|
+| [GitHub Advisory Database](https://github.com/advisories) | `github` | |
+| [PyUP.io safety-db](https://github.com/pyupio/safety-db) | `pyup` | |
+| [GitLab gemnasium-db](https://gitlab.com/gitlab-org/security-products/gemnasium-db) | `gemnasium` | |
+| [PYPA Advisory Database](https://github.com/pypa/advisory-db) | `pypa` | **Experimental!** Only supports `ECOSYSTEM` and `SEMVER`! |
+| [OSV.dev Database](https://osv.dev) | `osv` | **Experimental!** Only supports `ECOSYSTEM` and `SEMVER`!<br/> Sends package information to [OSV.dev](https://osv.dev) API. |
+
 
 No source is enabled by default! Individual sources can be enabled by setting `sources` list (see [Configuration](#configuration)). There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates.
 
