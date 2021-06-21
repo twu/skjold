@@ -6,5 +6,4 @@
   language: python
   language_version: python3
   require_serial: true
-  verbose: true
   files: ^(poetry\.lock|Pipfile\.lock|requirements.*\.txt)$
