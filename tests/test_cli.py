@@ -78,7 +78,7 @@ def test_vulnerable_package_with_ignore_list_via_env(
 
     result = runner.invoke(cli, args=["audit", "-"], input=input_, obj=config)
 
-    assert "Ignored 5 finding(s)!" in result.stderr
+    assert "Ignored 6 finding(s)!" in result.stderr
     assert "No vulnerable packages found!" in result.stderr
     assert result.exit_code == 0
 
@@ -105,7 +105,7 @@ def test_vulnerable_package_with_ignore_list_via_cli(
         cli, args=["audit", "-i", ignore_path, "-"], input=input_, obj=config
     )
 
-    assert "Ignored 5 finding(s)!" in result.stderr
+    assert "Ignored 6 finding(s)!" in result.stderr
     assert "No vulnerable packages found!" in result.stderr
     assert result.exit_code == 0
 
