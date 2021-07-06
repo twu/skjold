@@ -123,7 +123,13 @@ characters in the first argument of `putrequest()`. NOTE: this is similar to
 CVE-2020-26116.
 https://nvd.nist.gov/vuln/detail/CVE-2020-26137
 --
+```
 
+#### Ignore Findings
+
+Findings can be ignored either by manually adding an entry using the sources identifier to a file named `.skjoldignore` (See [Example](https://github.com/twu/skjold/blob/master/.skjoldignore)) or by using in the CLI. Below are a few possible usage examples.
+
+```
 # Ignore PYSEC-2020-148 finding from PyPA source until a certain date with a specific reason.
 $ skjold ignore urllib3 PYSEC-2020-148 --reason "Very good reason." --expires "2021-01-01T00:00:00+00:00"
 Ignore urllib3 in PYSEC-2020-148 until 2021-01-01 00:00:00+00:00?
