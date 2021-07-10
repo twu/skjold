@@ -4,7 +4,7 @@ import urllib.request
 from collections import defaultdict
 from typing import List, Tuple, Optional, Iterator, Dict, Any
 
-import semver
+from packaging import specifiers
 
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source
@@ -56,18 +56,18 @@ class GithubSecurityAdvisory(SecurityAdvisory):
         return str(self._json["node"]["firstPatchedVersion"]["identifier"])
 
     @property
-    def vulnerable_version_range(self) -> semver.VersionConstraint:
-        return semver.parse_constraint(self._json["node"]["vulnerableVersionRange"])
+    def vulnerable_version_range(self) -> specifiers.SpecifierSet:
+        return specifiers.SpecifierSet(
+            self._json["node"]["vulnerableVersionRange"], prereleases=True
+        )
 
     @property
     def vulnerable_versions(self) -> str:
         return str(self.vulnerable_version_range)
 
     def is_affected(self, version: str) -> bool:
-        version = semver.Version.parse(version)
-        if self.vulnerable_version_range.allows(version):
-            return True
-        return False
+        version = specifiers.parse(version)
+        return version in self.vulnerable_version_range
 
     @property
     def url(self) -> str:

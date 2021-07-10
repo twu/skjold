@@ -32,7 +32,7 @@ def test_ensure_using_build_obj(name: str, raw: Dict[Any, Any]) -> None:
     assert obj.severity == "UNKNOWN"
     assert obj.url == "https://pyup.io/pyup.io-XXXXXX"
     assert obj.references == []
-    assert obj.vulnerable_versions == "<1.0.0,>=1.1,<1.1.1"
+    assert obj.vulnerable_versions == "<1.0.0,<1.1.1,>=1.1"
 
 
 @pytest.mark.parametrize(

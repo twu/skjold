@@ -5,7 +5,7 @@ import urllib.request
 from collections import defaultdict
 from typing import Tuple, List, Dict, Callable, Union, Any
 
-import semver
+from packaging import specifiers
 
 from skjold.models import SecurityAdvisorySource, SecurityAdvisory
 from skjold.tasks import register_source
@@ -50,17 +50,19 @@ class PyUpSecurityAdvisory(SecurityAdvisory):
         return self._json["advisory"]
 
     @property
-    def vulnerable_version_range(self) -> List[semver.VersionConstraint]:
-        return [semver.parse_constraint(v) for v in self._json["specs"]]
+    def vulnerable_version_range(self) -> List[specifiers.SpecifierSet]:
+        return [
+            specifiers.SpecifierSet(v, prereleases=True) for v in self._json["specs"]
+        ]
 
     @property
     def vulnerable_versions(self) -> str:
         return ",".join([str(x) for x in self.vulnerable_version_range])
 
     def is_affected(self, version: str) -> bool:
-        version_ = semver.Version.parse(version)
-        allows_: Callable[[semver.VersionConstraint], bool] = (
-            lambda x: True if x.allows(version_) else False
+        version_ = specifiers.parse(version)
+        allows_: Callable[[specifiers.SpecifierSet], bool] = (
+            lambda x: True if version_ in x else False
         )
         # affected_versions = map(lambda x: x.allows(version), self.vulnerable_version_range)
         affected_versions = map(allows_, self.vulnerable_version_range)
