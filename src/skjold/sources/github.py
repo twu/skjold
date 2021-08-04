@@ -1,6 +1,6 @@
 import json
 import os
-import urllib.request
+from urllib import request
 from collections import defaultdict
 from typing import List, Tuple, Optional, Iterator, Dict, Any
 
@@ -116,7 +116,7 @@ def _query_github_graphql(
     }}
     """
     payload = json.dumps({"query": query}).encode("utf-8")
-    request_ = urllib.request.Request(
+    request_ = request.Request(
         url="https://api.github.com/graphql",
         data=payload,
         headers={
@@ -125,7 +125,7 @@ def _query_github_graphql(
             "Content-Type": "application/json; charset=utf-8",
         },
     )
-    with urllib.request.urlopen(request_) as response:
+    with request.urlopen(request_) as response:
         _data = json.loads(response.read())
 
     has_next = _data["data"]["securityVulnerabilities"]["pageInfo"]["hasNextPage"]
@@ -143,7 +143,8 @@ def _fetch_github_security_advisories(
     yield from data
 
     while has_next:
-        total_count, cursor, has_next, data = _query_github_graphql(limit, cursor)
+        total_count, cursor, has_next, data = _query_github_graphql(
+            limit, cursor)
         yield from data
 
 
