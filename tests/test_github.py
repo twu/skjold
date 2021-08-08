@@ -35,7 +35,7 @@ def test_ensure_using_build_obj(github_advisory: Dict) -> None:
     assert "Moderate" in obj.summary
     assert obj.severity == "MODERATE"
     assert obj.first_patched_version == "4.3.12"
-    assert obj.vulnerable_versions == ">=4.0,<4.3.12"
+    assert obj.vulnerable_versions == "<4.3.12,>=4.0"
     assert obj.ecosystem == "PIP"
 
 

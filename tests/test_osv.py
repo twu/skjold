@@ -27,7 +27,7 @@ def test_osv_advisory_with_introduced_and_fixed() -> None:
     assert obj.severity == "UNKNOWN"
     assert obj.url == "https://www.pypi.org"
     assert obj.references == ["https://www.pypi.org", "https://www.python.org"]
-    assert obj.vulnerable_versions == ">=1.0.0,<1.1.0"
+    assert obj.vulnerable_versions == "<1.1.0,>=1.0.0"
     assert obj.summary == "Too much cheese in the cheeseshop!"
 
     assert obj.is_affected("1.0.0")
@@ -101,7 +101,7 @@ def test_ensure_osv_advisory_from_yaml_with_no_cvss_vector() -> None:
     ]
     assert (
         obj.vulnerable_versions
-        == "<2015.8.10||>=2015.8.11,<2015.8.13||>=2016.3.0,<2016.3.4||>=2016.3.5,<2016.3.6||>=2016.3.7,<2016.3.8||>=2016.11.0,<2016.11.3||>=2016.11.4,<2016.11.5||>=2016.11.7,<2016.11.10||>=2017.7.0,<2017.7.8||>=2018.3.0rc1,<2019.2.0rc1||>=2019.2.0,<2019.2.5||>=2019.2.6,<2019.2.8||>=3000,<3000.6||>=3001,<3001.4||>=3002,<3002.5"
+        == "<2015.8.10||<2015.8.13,>=2015.8.11||<2016.3.4,>=2016.3.0||<2016.3.6,>=2016.3.5||<2016.3.8,>=2016.3.7||<2016.11.3,>=2016.11.0||<2016.11.5,>=2016.11.4||<2016.11.10,>=2016.11.7||<2017.7.8,>=2017.7.0||<2019.2.0rc1,>=2018.3.0rc1||<2019.2.5,>=2019.2.0||<2019.2.8,>=2019.2.6||<3000.6,>=3000||<3001.4,>=3001||<3002.5,>=3002"
     )
     assert obj.summary.startswith("In SaltStack Salt before 3002.5, eauth tokens")
 
@@ -143,7 +143,8 @@ def test_ensure_is_affected(
 
 
 @pytest.mark.parametrize(
-    "package_version", ["1.11.26", "0.1.6", "2.2.8", "2.2.9rc2", "3.0.0", "3.2", "4"]
+    "package_version",
+    ["1.11.26", "0.1.6", "2.2.8", "2.2.9rc2", "3.0.0-rc2", "3.0.0", "3.2", "4"],
 )
 def test_osv_advisory_ensure_marked_affected_by_default(package_version: str) -> None:
     obj = OSVSecurityAdvisory.using({"package": {"name": "package"}})

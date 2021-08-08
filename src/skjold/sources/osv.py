@@ -4,7 +4,7 @@ import urllib.request
 from typing import List, Tuple, Callable, Dict, Any, Sequence
 from typing import Optional, MutableMapping
 
-import semver
+from packaging import specifiers
 
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource, SecurityAdvisoryList
 from skjold.tasks import register_source
@@ -84,7 +84,7 @@ class OSVSecurityAdvisory(SecurityAdvisory):
         return f"{self._json['details']}"
 
     @property
-    def vulnerable_version_range(self) -> List[semver.VersionConstraint]:
+    def vulnerable_version_range(self) -> List[specifiers.SpecifierSet]:
         # Try using ranges first to avoid clutter.
         affected_ecosystem_ranges = list(
             filter(
@@ -104,24 +104,29 @@ class OSVSecurityAdvisory(SecurityAdvisory):
                     v = affected_range.get("fixed")
                     _constraints.append(f"<{v}")
 
-                ranges.append(semver.parse_constraint(",".join(_constraints)))
+                ranges.append(
+                    specifiers.SpecifierSet(",".join(_constraints), prereleases=True)
+                )
             return ranges
 
         # Try using versions (default).
         affected_versions = self._json.get("affects", {}).get("versions", [])
         if len(affected_versions):
-            return [semver.parse_constraint(x) for x in affected_versions]
+            return [
+                specifiers.SpecifierSet(f"=={x}", prereleases=True)
+                for x in affected_versions
+            ]
 
-        return [semver.parse_constraint(">=0.0.0")]
+        return [specifiers.SpecifierSet(">=0", prereleases=True)]
 
     @property
     def vulnerable_versions(self) -> str:
         return "||".join([str(x) for x in self.vulnerable_version_range])
 
     def is_affected(self, version: str) -> bool:
-        version_ = semver.Version.parse(version)
-        allows_: Callable[[semver.VersionConstraint], bool] = (
-            lambda x: True if x.allows(version_) else False
+        version_ = specifiers.parse(version)
+        allows_: Callable[[specifiers.SpecifierSet], bool] = (
+            lambda x: True if version_ in x else False
         )
         # affected_versions = map(lambda x: x.allows(version), self.vulnerable_version_range)
         affected_versions = map(allows_, self.vulnerable_version_range)
