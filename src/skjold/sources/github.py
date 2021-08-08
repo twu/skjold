@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import List, Tuple, Optional, Iterator, Dict, Any
 
 from packaging import specifiers
+import click
 
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source
@@ -79,7 +80,16 @@ def _query_github_graphql(
 ) -> Tuple[int, str, bool, dict]:
     _after = after and f'"{after}"' or "null"
     _limit = first and int(first) or 1
-    _api_token = os.environ["SKJOLD_GITHUB_API_TOKEN"]
+
+    try:
+        _api_token = os.environ["SKJOLD_GITHUB_API_TOKEN"]
+    except KeyError:
+        raise click.UsageError(
+            "It looks like you're trying to use the github source without providing an access token."
+            "Skjold needs a token to access the Github GraphQL API."
+            "You can generate a token at https://github.com/settings/tokens without giving it any permissions "
+            "and make it available to skjold by setting SKJOLD_GITHUB_TOKEN in your environment."
+        )
 
     query = f"""
     {{
@@ -171,8 +181,9 @@ class Github(SecurityAdvisorySource):
         return os.path.join(self._cache_dir, "github.cache")
 
     def update(self) -> None:
+        data = list(_fetch_github_security_advisories())
         with open(self.path, "w") as fh:
-            json.dump(list(_fetch_github_security_advisories()), fh)
+            json.dump(data, fh)
 
     def has_security_advisory_for(self, package_name: str) -> bool:
         return package_name.strip() in self.advisories.keys()
