@@ -4,7 +4,7 @@ import urllib.request
 from collections import defaultdict
 from typing import List, Tuple, Callable
 
-import semver
+from packaging import specifiers
 import yaml
 
 from skjold.cvss import parse_cvss
@@ -57,22 +57,25 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
         return f"{self._json['title']}. {self._json['description']}"
 
     @property
-    def vulnerable_version_range(self) -> List[semver.VersionConstraint]:
+    def vulnerable_version_range(self) -> List[specifiers.SpecifierSet]:
         affected_range = self._json["affected_range"]
 
         if not affected_range:
-            return [semver.parse_constraint(">=0.0.0")]
+            return [specifiers.SpecifierSet(">=0.0.0", prereleases=True)]
 
-        return [semver.parse_constraint(x) for x in affected_range.split("||")]
+        return [
+            specifiers.SpecifierSet(x, prereleases=True)
+            for x in affected_range.split("||")
+        ]
 
     @property
     def vulnerable_versions(self) -> str:
         return ",".join([str(x) for x in self.vulnerable_version_range])
 
     def is_affected(self, version: str) -> bool:
-        version_ = semver.Version.parse(version)
-        allows_: Callable[[semver.VersionConstraint], bool] = (
-            lambda x: True if x.allows(version_) else False
+        version_ = specifiers.parse(version)
+        allows_: Callable[[specifiers.SpecifierSet], bool] = (
+            lambda x: True if version_ in x else False
         )
         # affected_versions = map(lambda x: x.allows(version), self.vulnerable_version_range)
         affected_versions = map(allows_, self.vulnerable_version_range)

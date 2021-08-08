@@ -1,5 +1,8 @@
-import pytest
 from typing import Dict, Union, Any
+
+import click
+import pytest
+from _pytest.monkeypatch import MonkeyPatch
 
 from skjold.sources.github import GithubSecurityAdvisory, Github
 
@@ -32,7 +35,7 @@ def test_ensure_using_build_obj(github_advisory: Dict) -> None:
     assert "Moderate" in obj.summary
     assert obj.severity == "MODERATE"
     assert obj.first_patched_version == "4.3.12"
-    assert obj.vulnerable_versions == ">=4.0,<4.3.12"
+    assert obj.vulnerable_versions == "<4.3.12,>=4.0"
     assert obj.ecosystem == "PIP"
 
 
@@ -56,3 +59,12 @@ def test_ensure_accessing_advisories_triggers_update(
     assert len(source.get_security_advisories()) > 100
     assert spy.assert_called
     assert source.total_count > 100
+
+
+def test_ensure_missing_github_token_raises_usage_error(
+    cache_dir: str, monkeypatch: MonkeyPatch
+) -> None:
+    monkeypatch.delenv("SKJOLD_GITHUB_API_TOKEN")
+    with pytest.raises(click.UsageError):
+        gh = Github(cache_dir, 0)
+        gh.update()

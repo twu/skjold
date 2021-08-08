@@ -4,7 +4,8 @@ import urllib.request
 from collections import defaultdict
 from typing import List, Tuple, Optional, Iterator, Dict, Any
 
-import semver
+from packaging import specifiers
+import click
 
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source
@@ -56,18 +57,18 @@ class GithubSecurityAdvisory(SecurityAdvisory):
         return str(self._json["node"]["firstPatchedVersion"]["identifier"])
 
     @property
-    def vulnerable_version_range(self) -> semver.VersionConstraint:
-        return semver.parse_constraint(self._json["node"]["vulnerableVersionRange"])
+    def vulnerable_version_range(self) -> specifiers.SpecifierSet:
+        return specifiers.SpecifierSet(
+            self._json["node"]["vulnerableVersionRange"], prereleases=True
+        )
 
     @property
     def vulnerable_versions(self) -> str:
         return str(self.vulnerable_version_range)
 
     def is_affected(self, version: str) -> bool:
-        version = semver.Version.parse(version)
-        if self.vulnerable_version_range.allows(version):
-            return True
-        return False
+        version = specifiers.parse(version)
+        return version in self.vulnerable_version_range
 
     @property
     def url(self) -> str:
@@ -79,7 +80,16 @@ def _query_github_graphql(
 ) -> Tuple[int, str, bool, dict]:
     _after = after and f'"{after}"' or "null"
     _limit = first and int(first) or 1
-    _api_token = os.environ["SKJOLD_GITHUB_API_TOKEN"]
+
+    try:
+        _api_token = os.environ["SKJOLD_GITHUB_API_TOKEN"]
+    except KeyError:
+        raise click.UsageError(
+            "It looks like you're trying to use the github source without providing an access token."
+            "Skjold needs a token to access the Github GraphQL API."
+            "You can generate a token at https://github.com/settings/tokens without giving it any permissions "
+            "and make it available to skjold by setting SKJOLD_GITHUB_TOKEN in your environment."
+        )
 
     query = f"""
     {{
@@ -171,8 +181,9 @@ class Github(SecurityAdvisorySource):
         return os.path.join(self._cache_dir, "github.cache")
 
     def update(self) -> None:
+        data = list(_fetch_github_security_advisories())
         with open(self.path, "w") as fh:
-            json.dump(list(_fetch_github_security_advisories()), fh)
+            json.dump(data, fh)
 
     def has_security_advisory_for(self, package_name: str) -> bool:
         return package_name.strip() in self.advisories.keys()

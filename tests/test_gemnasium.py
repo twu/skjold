@@ -31,7 +31,7 @@ def test_ensure_gemnasium_advisory_from_yaml_with_cvss3_and_cvss2() -> None:
         "https://docs.djangoproject.com/en/dev/releases/security/",
         "https://www.djangoproject.com/weblog/2019/dec/18/security-releases/",
     ]
-    assert obj.vulnerable_versions == "<1.11.27,>=2.2,<2.2.9,3.0"
+    assert obj.vulnerable_versions == "<1.11.27,<2.2.9,>=2.2,==3.0"
     assert obj.summary.startswith(
         "Weak Password Recovery Mechanism for Forgotten Password"
     )
