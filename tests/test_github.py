@@ -26,6 +26,54 @@ def github_advisory() -> Dict[str, Union[str, Dict]]:
     }
 
 
+@pytest.mark.parametrize(
+    "vulnerable_version_range, package_version, is_vulnerable",
+    [
+        (" = 1.4.2", "1.4.2", True),
+        ("= 1.4.2", "1.4.2", True),
+        ("==1.4.2", "1.4.2", True),
+        ("== 1.4.2", "1.4.2", True),
+        (" == 1.4.2", "1.4.2", True),
+        ("< 8.2.0", "8.1.99", True),
+        (" >= 4.0, < 4.3", "4.0", True),
+        (">= 5.0.0, < 5.2.1", "5.2.0", True),
+        (">=5.0.0,<5.2.1", "5.2.0", True),
+        (">= 5.0.0, < 5.2.1", "5.0", True),
+        (">= 4.0, < 4.3", "4.3", False),
+        ("= 1.4.2", "1.4.3", False),
+        ("= 1.4.2", "1.4.3", False),
+        ("< 8.2.0", "8.2.0", False),
+    ],
+)
+def test_ensure_is_affected_with_github_specifiers(
+    vulnerable_version_range: str, package_version: str, is_vulnerable: bool
+) -> None:
+    obj = GithubSecurityAdvisory.using(
+        {
+            "node": {
+                "vulnerableVersionRange": vulnerable_version_range,
+            },
+        }
+    )
+
+    assert len(obj.vulnerable_version_range) > 0
+    assert (
+        obj.is_affected(package_version) is is_vulnerable
+    ), f"'{package_version}' should be vulnerable given '{vulnerable_version_range}'!"
+
+
+def test_ensure_raises_when_encountering_too_many_specifiers() -> None:
+    obj = GithubSecurityAdvisory.using(
+        {
+            "node": {
+                "vulnerableVersionRange": "<1.0, = 2.0, >= 3.0",
+            },
+        }
+    )
+    with pytest.raises(ValueError):
+        obj.is_affected("2.0")
+
+
 def test_ensure_using_build_obj(github_advisory: Dict) -> None:
     obj = GithubSecurityAdvisory.using(github_advisory)
 

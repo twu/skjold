@@ -58,9 +58,19 @@ class GithubSecurityAdvisory(SecurityAdvisory):
 
     @property
     def vulnerable_version_range(self) -> specifiers.SpecifierSet:
-        return specifiers.SpecifierSet(
-            self._json["node"]["vulnerableVersionRange"], prereleases=True
-        )
+        items = self._json["node"]["vulnerableVersionRange"].split(",")
+        if len(items) > 2:
+            raise ValueError(f"Found more than 2 version specifiers!")
+
+        vulnerable_ranges = []
+        for value in items:
+            value = value.strip()
+            if value.startswith("= "):
+                vulnerable_ranges.append(value.replace("= ", "=="))
+            else:
+                vulnerable_ranges.append(value)
+
+        return specifiers.SpecifierSet(",".join(vulnerable_ranges), prereleases=True)
 
     @property
     def vulnerable_versions(self) -> str:
