@@ -88,7 +88,7 @@ def _query_github_graphql(
             "It looks like you're trying to use the github source without providing an access token."
             "Skjold needs a token to access the Github GraphQL API."
             "You can generate a token at https://github.com/settings/tokens without giving it any permissions "
-            "and make it available to skjold by setting SKJOLD_GITHUB_TOKEN in your environment."
+            "and make it available to skjold by setting SKJOLD_GITHUB_API_TOKEN in your environment."
         )
 
     query = f"""
