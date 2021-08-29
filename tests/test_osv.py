@@ -188,5 +188,5 @@ def test_ensure_pypi_advisory_db_update(cache_dir: str) -> None:
     found, findings = source.is_vulnerable_package("ansible", "2.8.3")
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("ansible", "4.1.0")
+    found, findings = source.is_vulnerable_package("httpx", "0.19.0")
     assert found is False and len(findings) == 0
