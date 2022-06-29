@@ -23,7 +23,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -43,24 +42,24 @@ classifiers = [
 skjold = 'skjold.cli:cli'
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 click = ">=8,<9"
 packaging = "^21.0"
-pyyaml = "^5.3"
+pyyaml = "^6.0"
 toml = ">=0.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest-watch = "^4.2.0"
 pytest-sugar = "^0.9.4"
-pytest-mock = "^3.6.1"
-pre-commit = ">=1.20.0"
-black = ">=19.10b0"
-mypy = "^0.930"
-coverage = {extras = ["toml"], version = "^5.5"}
-pytest-cov = "^2.12.1"
-pytest = "^6.2.5"
-types-toml = "^0.1.5"
-types-PyYAML = "^5.4.10"
+pytest-mock = "^3.8.1"
+pre-commit = ">=2.2.0"
+black = ">=22.1.0"
+mypy = "^0.961"
+coverage = {extras = ["toml"], version = "^6"}
+pytest-cov = "^3.0.0"
+pytest = "^7.1.2"
+types-toml = "^0.10.7"
+types-PyYAML = "^6.0.9"
 
 [tool.skjold]
 report_only = false
@@ -85,7 +84,7 @@ filterwarnings = [
 
 [tool.black]
 line-length = 88
-target-version = ['py36', 'py37', 'py38']
+target-version = ['py37', 'py38', 'py39']
 include = '\.pyi?$'
 exclude = '''
 /(
