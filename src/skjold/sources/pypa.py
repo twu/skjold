@@ -36,8 +36,9 @@ class PyPAAdvisoryDB(SecurityAdvisorySource):
                 obj_fh = archive.extractfile(obj.name)
                 if obj_fh:
                     doc = yaml.load(obj_fh, Loader=yaml.SafeLoader)
-                    advisory = OSVSecurityAdvisory.using(doc)
-                    self._advisories[advisory.package_name.lower()].append(advisory)
+                    advisories = OSVSecurityAdvisory.using(doc)
+                    for advisory in advisories:
+                        self._advisories[advisory.package_name.lower()].append(advisory)
                 else:  # pragma: no cover
                     raise SkjoldException(
                         f"Unable to extract '{obj.name}' from source archive."
