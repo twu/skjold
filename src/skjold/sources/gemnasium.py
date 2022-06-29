@@ -60,6 +60,11 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
     def vulnerable_version_range(self) -> List[specifiers.SpecifierSet]:
         affected_range = self._json["affected_range"]
 
+        # Gemnasium seems to invalidate/withdraw advisories by marking them this way.
+        # See pypi/pyspark/CVE-2020-27218.yml#L11 in gemnasium-db.
+        if affected_range in {"(,0)"}:
+            return []
+
         if not affected_range:
             return [specifiers.SpecifierSet(">=0.0.0", prereleases=True)]
 
