@@ -18,74 +18,42 @@ def osv_advisory_yml(name: str) -> Any:
     return doc
 
 
-def test_osv_advisory_with_introduced_and_fixed() -> None:
-    obj = OSVSecurityAdvisory.using(osv_advisory_yml("introduced-and-fixed.yaml"))
+def test_osv_advisory_with_type_ecosystem_and_versions() -> None:
+    advisories = OSVSecurityAdvisory.using(osv_advisory_yml("PYSEC-2021-59.yaml"))
+    assert len(advisories) == 1
 
-    assert obj.package_name == "package"
-    assert obj.identifier == "PYSEC-0000-0"
+    obj = advisories[0]
+    assert obj.package_name == "urllib3"
+    assert obj.identifier == "PYSEC-2021-59"
     assert obj.source == "osv"
     assert obj.severity == "UNKNOWN"
-    assert obj.url == "https://www.pypi.org"
-    assert obj.references == ["https://www.pypi.org", "https://www.python.org"]
-    assert obj.vulnerable_versions == "<1.1.0,>=1.0.0"
-    assert obj.summary == "Too much cheese in the cheeseshop!"
+    assert obj.url == "https://github.com/urllib3/urllib3/commits/main"
+    assert obj.references == [
+        "https://github.com/urllib3/urllib3/commits/main",
+        "https://pypi.org/project/urllib3/1.26.4/",
+        "https://github.com/urllib3/urllib3/commit/8d65ea1ecf6e2cdc27d42124e587c1b83a3118b0",
+        "https://github.com/urllib3/urllib3/security/advisories/GHSA-5phf-pp7p-vc2r",
+    ]
+    assert obj.vulnerable_versions == "==1.26.0||==1.26.1||==1.26.2||==1.26.3"
+    assert obj.summary.startswith("The urllib3 library 1.26.x before")
 
-    assert obj.is_affected("1.0.0")
-    assert obj.is_affected("1.0.20")
-    assert not obj.is_affected("0.9.0")
-    assert not obj.is_affected("1.1.0")
-    assert not obj.is_affected("2.0.0")
+    assert not obj.is_affected("1.25.9")
+    assert not obj.is_affected("1.20.0")
 
+    assert obj.is_affected("1.26.0")
+    assert obj.is_affected("1.26.1")
+    assert obj.is_affected("1.26.2")
+    assert obj.is_affected("1.26.3")
 
-def test_osv_advisory_with_introduced_and_versions() -> None:
-    obj = OSVSecurityAdvisory.using(osv_advisory_yml("introduced-and-versions.yaml"))
-
-    assert obj.package_name == "package"
-    assert obj.identifier == "PYSEC-0000-0"
-    assert obj.source == "osv"
-    assert obj.severity == "UNKNOWN"
-    assert obj.url == "https://www.pypi.org"
-    assert obj.references == ["https://www.pypi.org", "https://www.python.org"]
-    assert obj.vulnerable_versions == ">=2.8.0"
-    assert obj.summary == "Too much cheese in the cheeseshop!"
-
-    assert not obj.is_affected("1.7.9")
-    assert not obj.is_affected("2.7.9")
-
-    assert obj.is_affected("2.8.0")
-    assert obj.is_affected("2.8.1")
-    assert obj.is_affected("2.8.2")
-    assert obj.is_affected("2.8.3")
-
-    assert obj.is_affected("2.8.4")
-    assert obj.is_affected("3.0.0")
-
-
-def test_osv_advisory_with_introduced_only() -> None:
-    obj = OSVSecurityAdvisory.using(osv_advisory_yml("introduced-only.yaml"))
-
-    assert obj.package_name == "package"
-    assert obj.identifier == "PYSEC-0000-0"
-    assert obj.source == "osv"
-    assert obj.severity == "UNKNOWN"
-    assert obj.url == "https://www.pypi.org"
-    assert obj.references == ["https://www.pypi.org", "https://www.python.org"]
-    assert obj.vulnerable_versions == ">=1.0.0"
-    assert obj.summary == "Too much cheese in the cheeseshop!"
-
-    assert not obj.is_affected("0.9")
-    assert not obj.is_affected("0.9.0")
-
-    assert obj.is_affected("1.0.0")
-    assert obj.is_affected("1.0")
-    assert obj.is_affected("1.2")
-    assert obj.is_affected("2.0")
-    assert obj.is_affected("2.0.0")
+    assert not obj.is_affected("1.26.4")
+    assert not obj.is_affected("1.27")
 
 
 def test_ensure_osv_advisory_from_yaml_with_no_cvss_vector() -> None:
-    obj = OSVSecurityAdvisory.using(osv_advisory_yml("PYSEC-2021-54.yaml"))
+    advisories = OSVSecurityAdvisory.using(osv_advisory_yml("PYSEC-2021-54.yaml"))
+    assert len(advisories) == 1
 
+    obj = advisories[0]
     assert obj.package_name == "salt"
     assert obj.identifier == "PYSEC-2021-54"
     assert obj.source == "osv"
@@ -99,10 +67,6 @@ def test_ensure_osv_advisory_from_yaml_with_no_cvss_vector() -> None:
         "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/FUGLOJ6NXLCIFRD2JTXBYQEMAEF2B6XH/",
         "https://security.gentoo.org/glsa/202103-01",
     ]
-    assert (
-        obj.vulnerable_versions
-        == "<2015.8.10||<2015.8.13,>=2015.8.11||<2016.3.4,>=2016.3.0||<2016.3.6,>=2016.3.5||<2016.3.8,>=2016.3.7||<2016.11.3,>=2016.11.0||<2016.11.5,>=2016.11.4||<2016.11.10,>=2016.11.7||<2017.7.8,>=2017.7.0||<2019.2.0rc1,>=2018.3.0rc1||<2019.2.5,>=2019.2.0||<2019.2.8,>=2019.2.6||<3000.6,>=3000||<3001.4,>=3001||<3002.5,>=3002"
-    )
     assert obj.summary.startswith("In SaltStack Salt before 3002.5, eauth tokens")
 
 
@@ -125,10 +89,14 @@ def test_ensure_osv_advisory_from_yaml_with_no_cvss_vector() -> None:
     [
         (
             {
-                "affects": {
-                    "versions": ["1.11.26", "0.11.26", "0.1.6", "2.2.8", "3.0"]
-                },
-                "package": {"name": "package"},
+                "id": "PYSEC-0000-00",
+                "details": "...",
+                "affected": [
+                    {
+                        "package": {"name": "package"},
+                        "versions": ["1.11.26", "0.11.26", "0.1.6", "2.2.8", "3.0"],
+                    }
+                ],
             }
         )
     ],
@@ -136,34 +104,24 @@ def test_ensure_osv_advisory_from_yaml_with_no_cvss_vector() -> None:
 def test_ensure_is_affected(
     doc: Any, package_name: str, package_version: str, is_vulnerable: bool
 ) -> None:
-    obj = OSVSecurityAdvisory.using(doc)
+    obj = OSVSecurityAdvisory.using(doc)[0]
     assert obj.package_name == "package"
-    assert len(obj.vulnerable_version_range) == len(doc["affects"]["versions"])
+    # assert len(obj.vulnerable_version_range) == len(doc["affected"]["versions"])
     assert obj.is_affected(package_version) is is_vulnerable
-
-
-@pytest.mark.parametrize(
-    "package_version",
-    ["1.11.26", "0.1.6", "2.2.8", "2.2.9rc2", "3.0.0-rc2", "3.0.0", "3.2", "4"],
-)
-def test_osv_advisory_ensure_marked_affected_by_default(package_version: str) -> None:
-    obj = OSVSecurityAdvisory.using({"package": {"name": "package"}})
-    assert obj.package_name == "package"
-    assert obj.is_affected(package_version)
 
 
 def test_osv_advisory_with_vulnerable_package_via_osv_api() -> None:
     vulnerabilities = _osv_dev_api_request("jinja2", "2.11.2")
     assert vulnerabilities[0]
 
-    obj = OSVSecurityAdvisory.using(vulnerabilities[0])
+    obj = OSVSecurityAdvisory.using(vulnerabilities[0])[0]
     assert obj.identifier == "PYSEC-2021-66"
     assert obj.package_name == "jinja2"
     assert obj.summary.startswith(
         "This affects the package jinja2 from 0.0.0 and before 2.11.3."
     )
 
-    assert obj.is_affected("0.0.0")
+    assert obj.is_affected("2.5.5")
     assert obj.is_affected("2.11.2")
     assert not obj.is_affected("2.11.3")
 
@@ -189,4 +147,4 @@ def test_ensure_pypi_advisory_db_update(cache_dir: str) -> None:
     assert found and len(findings) > 0
 
     found, findings = source.is_vulnerable_package("httpx", "0.19.0")
-    assert found is False and len(findings) == 0
+    assert found is True and len(findings) > 0

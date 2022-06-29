@@ -1,21 +1,12 @@
 import json
 import os
 import urllib.request
-from typing import List, Tuple, Callable, Dict, Any, Sequence
-from typing import Optional, MutableMapping
+from typing import List, Tuple, Callable, Any, Sequence, Optional, MutableMapping
 
 from packaging import specifiers
 
 from skjold.models import SecurityAdvisory, SecurityAdvisorySource, SecurityAdvisoryList
 from skjold.tasks import register_source
-
-
-def _is_supported_range_type(affected_range: Dict) -> bool:
-    """Return True if the given `affected.ranges` item is supported."""
-    return "type" in affected_range and affected_range["type"] in {
-        "ECOSYSTEM",
-        "SEMVER",
-    }
 
 
 def _osv_dev_api_request(
@@ -50,10 +41,23 @@ class OSVSecurityAdvisory(SecurityAdvisory):
     _json: dict
 
     @classmethod
-    def using(cls, json_: dict) -> "OSVSecurityAdvisory":
-        obj = cls()
-        obj._json = json_
-        return obj
+    def using(cls, osv1_doc: dict) -> List["OSVSecurityAdvisory"]:
+        if osv1_doc.get("withdrawn"):
+            return []
+
+        advisories = []
+        for affected_package in osv1_doc.get("affected", []):
+            obj = cls()
+            obj._json = {
+                "id": osv1_doc["id"],
+                "name": affected_package["package"]["name"].strip(),
+                "details": osv1_doc["details"],
+                "aliases": osv1_doc.get("aliases", []),
+                "references": osv1_doc.get("references", []),
+                "affected_versions": affected_package.get("versions", []),
+            }
+            advisories.append(obj)
+        return advisories
 
     @property
     def identifier(self) -> str:
@@ -77,7 +81,7 @@ class OSVSecurityAdvisory(SecurityAdvisory):
 
     @property
     def package_name(self) -> str:
-        return str(self._json["package"]["name"]).strip()
+        return str(self._json["name"]).strip()
 
     @property
     def summary(self) -> str:
@@ -85,39 +89,11 @@ class OSVSecurityAdvisory(SecurityAdvisory):
 
     @property
     def vulnerable_version_range(self) -> List[specifiers.SpecifierSet]:
-        # Try using ranges first to avoid clutter.
-        affected_ecosystem_ranges = list(
-            filter(
-                _is_supported_range_type,
-                self._json.get("affects", {}).get("ranges", []),
-            )
-        )
-        if len(affected_ecosystem_ranges):
-            ranges = []
-            for affected_range in affected_ecosystem_ranges:
-                _constraints = []
-                if "introduced" in affected_range:
-                    v = affected_range.get("introduced")
-                    _constraints.append(f">={v}")
-
-                if "fixed" in affected_range:
-                    v = affected_range.get("fixed")
-                    _constraints.append(f"<{v}")
-
-                ranges.append(
-                    specifiers.SpecifierSet(",".join(_constraints), prereleases=True)
-                )
-            return ranges
-
-        # Try using versions (default).
-        affected_versions = self._json.get("affects", {}).get("versions", [])
-        if len(affected_versions):
-            return [
-                specifiers.SpecifierSet(f"=={x}", prereleases=True)
-                for x in affected_versions
-            ]
-
-        return [specifiers.SpecifierSet(">=0", prereleases=True)]
+        affected_versions = self._json.get("affected_versions", [])
+        return [
+            specifiers.SpecifierSet(f"=={x}", prereleases=True)
+            for x in affected_versions
+        ]
 
     @property
     def vulnerable_versions(self) -> str:
@@ -128,7 +104,6 @@ class OSVSecurityAdvisory(SecurityAdvisory):
         allows_: Callable[[specifiers.SpecifierSet], bool] = (
             lambda x: True if version_ in x else False
         )
-        # affected_versions = map(lambda x: x.allows(version), self.vulnerable_version_range)
         affected_versions = map(allows_, self.vulnerable_version_range)
         return any(affected_versions)
 
@@ -169,8 +144,9 @@ class OSV(SecurityAdvisorySource):
 
         advisories = []
         for finding in findings:
-            advisory = OSVSecurityAdvisory.using(finding)
-            advisories.append(advisory)
+            results = OSVSecurityAdvisory.using(finding)
+            for advisory in results:
+                advisories.append(advisory)
 
         return True, advisories
 
