@@ -162,6 +162,8 @@ def report(
             click.secho(finding["source"], fg="cyan", nl=False)
             click.secho(" as ", nl=False)
             click.secho(finding["identifier"], fg="yellow", nl=False)
+            click.secho(" found in ", nl=False)
+            click.secho(finding["__file__"]["path"], fg=_color, nl=False)
             click.secho(" ignored until ", nl=False)
             click.secho(finding["ignored"]["expires"], fg="cyan", nl=False)
             click.secho(".")
@@ -180,6 +182,8 @@ def report(
         click.secho(finding["source"], fg="cyan", nl=False)
         click.secho(" as ", nl=False)
         click.secho(finding["identifier"], fg="yellow", nl=False)
+        click.secho(" found in ", nl=False)
+        click.secho(finding["__file__"]["path"], fg=_color, nl=False)
         click.secho("")
 
         click.secho("")

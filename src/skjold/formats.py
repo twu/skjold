@@ -1,6 +1,6 @@
 import json
 import os
-from typing import TextIO, MutableMapping, Callable, Optional, Iterator
+from typing import TextIO, MutableMapping, Callable, Optional, Iterator, Sequence
 
 import click
 import toml
@@ -71,16 +71,25 @@ def read_requirements_txt_from(file: TextIO) -> Iterator[Dependency]:
 class Format:  # pragma: no cover
     POETRY: str = "poetry.lock"
     REQUIREMENTS: str = "requirements.txt"
+    REQUIREMENTS_DEV: str = "requirements-dev.txt"
     PIPENV: str = "Pipfile.lock"
 
     SUPPORTED_FORMATS: MutableMapping[str, Callable] = {
         POETRY: read_poetry_lock_from,
         REQUIREMENTS: read_requirements_txt_from,
+        REQUIREMENTS_DEV: read_requirements_txt_from,
         PIPENV: read_pipfile_lock_from,
     }
 
 
-def extract_package_list_from(
+def extract_dependencies_from_files(
+    configuration: Configuration, files: Sequence[TextIO], format_: Optional[str] = None
+) -> Iterator[Dependency]:
+    for file in files:
+        yield from _extract_package_list_from(configuration, file, format_)
+
+
+def _extract_package_list_from(
     configuration: Configuration, file: TextIO, format_: Optional[str] = None
 ) -> Iterator[Dependency]:
     """Extracts the list of tuples containing package name and version."""
