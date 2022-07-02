@@ -20,14 +20,13 @@ It currently supports fetching advisories from the following sources:
 
 | Source | Name | Notes |
 | ------:|:----:|:------|
-| [GitHub Advisory Database](https://github.com/advisories) | `github` | |
+| [GitHub Advisory Database](https://github.com/advisories) | `github` | Requires Access Token (See [Github](#github)). |
 | [PyUP.io safety-db](https://github.com/pyupio/safety-db) | `pyup` | |
 | [GitLab gemnasium-db](https://gitlab.com/gitlab-org/security-products/gemnasium-db) | `gemnasium` | |
-| [PYPA Advisory Database](https://github.com/pypa/advisory-db) | `pypa` | **Experimental!** Only supports `ECOSYSTEM` and `SEMVER`! |
-| [OSV.dev Database](https://osv.dev) | `osv` | **Experimental!** Only supports `ECOSYSTEM` and `SEMVER`!<br/> Sends package information to [OSV.dev](https://osv.dev) API. |
+| [PYPA Advisory Database](https://github.com/pypa/advisory-db) | `pypa` | Only supports `ECOSYSTEM`! |
+| [OSV.dev Database](https://osv.dev) | `osv` | Only supports `ECOSYSTEM`!<br/> Sends package information to [OSV.dev](https://osv.dev) API. |
 
-
-No source is enabled by default! Individual sources can be enabled by setting `sources` list (see [Configuration](#configuration)). There is (currently) no de-duplication meaning that using all of them could result in _a lot_ of duplicates.
+No source is enabled by default! Sources can be enabled by setting `sources` list (see [Configuration](#configuration)). There is (currently) no de-duplication meaning that using too many sources at once will result in _a lot_ of duplicates. `skjold` also requires _all_ dependencies to be passed as it *will not* resolve any dependencies at runtime!
 
 ## Motivation
 Skjold was initially created for myself to replace `safety`. ~Which appears to no longer receive monthly updates (see [pyupio/safety-db #2282](https://github.com/pyupio/safety-db/issues/2282))~. I wanted something I can run locally and use for my local or private projects/scripts.
@@ -67,6 +66,9 @@ $ pip list --format=freeze | skjold audit -s github -
 $ skjold -v audit requirements.txt
 $ skjold -v audit poetry.lock
 $ skjold -v audit Pipenv.lock
+
+# Specify specify multiple inputs at once.
+$ skjold -v audit Pipenv.lock poetry.lock requirements.txt
 
 # Using poetry.
 $ poetry export -f requirements.txt | skjold audit -s github -s gemnasium -s pyup -
