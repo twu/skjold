@@ -95,6 +95,11 @@ exclude = '''
 )/
 '''
 
+[tool.isort]
+profile = "black"
+known_first_party = "skjold"
+src_paths = ["src", "tests"]
+
 [tool.mypy]
 python_version = "3.7"
 files = ["src", "tests"]
