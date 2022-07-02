@@ -6,8 +6,9 @@ from collections import defaultdict
 from typing import Tuple, List, Dict, Callable, Union, Any
 
 from packaging import specifiers
+from packaging.utils import canonicalize_name, NormalizedName
 
-from skjold.models import SecurityAdvisorySource, SecurityAdvisory
+from skjold.core import SecurityAdvisorySource, SecurityAdvisory, Dependency
 from skjold.tasks import register_source
 
 
@@ -44,6 +45,10 @@ class PyUpSecurityAdvisory(SecurityAdvisory):
     @property
     def package_name(self) -> str:
         return self._json["name"]
+
+    @property
+    def canonical_name(self) -> NormalizedName:
+        return canonicalize_name(self.package_name)
 
     @property
     def summary(self) -> str:
@@ -108,7 +113,7 @@ class PyUp(SecurityAdvisorySource):
 
             for advisory in advisories:
                 obj = PyUpSecurityAdvisory.using(package_name, advisory)
-                self._advisories[obj.package_name].append(obj)
+                self._advisories[obj.canonical_name].append(obj)
 
     def update(self) -> None:
         request_ = urllib.request.Request(
@@ -121,15 +126,15 @@ class PyUp(SecurityAdvisorySource):
         with open(self.path, "w") as fh:
             json.dump(json_, fh)
 
-    def has_security_advisory_for(self, package_name: str) -> bool:
-        return package_name.strip() in self.advisories.keys()
+    def has_security_advisory_for(self, dependency: Dependency) -> bool:
+        return dependency.canonical_name in self.advisories.keys()
 
     def is_vulnerable_package(
-        self, package_name: str, package_version: str
+        self, dependency: Dependency
     ) -> Tuple[bool, List[SecurityAdvisory]]:
         advisories = []
-        for candidate in self.advisories[package_name]:
-            if candidate.is_affected(package_version):
+        for candidate in self.advisories[dependency.canonical_name]:
+            if candidate.is_affected(dependency.version):
                 advisories.append(candidate)
 
         return len(advisories) > 0, advisories

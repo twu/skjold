@@ -4,13 +4,19 @@ import urllib.request
 from typing import List, Tuple, Callable, Any, Sequence, Optional, MutableMapping
 
 from packaging import specifiers
+from packaging.utils import NormalizedName, canonicalize_name
 
-from skjold.models import SecurityAdvisory, SecurityAdvisorySource, SecurityAdvisoryList
+from skjold.core import (
+    Dependency,
+    SecurityAdvisory,
+    SecurityAdvisorySource,
+    SecurityAdvisoryList,
+)
 from skjold.tasks import register_source
 
 
 def _osv_dev_api_request(
-    package_name: str, package_version: str, ecosystem: str = "PyPI"
+    package_name: NormalizedName, package_version: str, ecosystem: str = "PyPI"
 ) -> Any:
     """Return list of vulnerabilities for a given `package_name` and `package_version` via OSV.dev API."""
 
@@ -84,6 +90,10 @@ class OSVSecurityAdvisory(SecurityAdvisory):
         return str(self._json["name"]).strip()
 
     @property
+    def canonical_name(self) -> NormalizedName:
+        return canonicalize_name(self.package_name)
+
+    @property
     def summary(self) -> str:
         return f"{self._json['details']}"
 
@@ -130,15 +140,15 @@ class OSV(SecurityAdvisorySource):
     def update(self) -> None:
         pass
 
-    def has_security_advisory_for(self, package_name: str) -> bool:
+    def has_security_advisory_for(self, dependency: Dependency) -> bool:
         """Always return `True` since to ensure we always call the OSV API for every package."""
         return True
 
     def is_vulnerable_package(
-        self, package_name: str, package_version: str
+        self, dependency: Dependency
     ) -> Tuple[bool, Sequence[SecurityAdvisory]]:
 
-        findings = _osv_dev_api_request(package_name.strip().lower(), package_version)
+        findings = _osv_dev_api_request(dependency.canonical_name, dependency.version)
         if not len(findings):
             return False, []
 
@@ -150,7 +160,9 @@ class OSV(SecurityAdvisorySource):
 
         return True, advisories
 
-    def get_security_advisories(self) -> MutableMapping[str, SecurityAdvisoryList]:
+    def get_security_advisories(
+        self,
+    ) -> MutableMapping[NormalizedName, SecurityAdvisoryList]:
         raise NotImplementedError
 
 

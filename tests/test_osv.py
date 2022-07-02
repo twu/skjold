@@ -3,6 +3,9 @@ from typing import Any
 
 import pytest
 import yaml
+from skjold.core import Dependency
+
+from packaging.utils import NormalizedName
 
 from skjold.sources.osv import OSV, OSVSecurityAdvisory, _osv_dev_api_request
 
@@ -111,7 +114,7 @@ def test_ensure_is_affected(
 
 
 def test_osv_advisory_with_vulnerable_package_via_osv_api() -> None:
-    vulnerabilities = _osv_dev_api_request("jinja2", "2.11.2")
+    vulnerabilities = _osv_dev_api_request(NormalizedName("jinja2"), "2.11.2")
     assert vulnerabilities[0]
 
     obj = OSVSecurityAdvisory.using(vulnerabilities[0])[0]
@@ -135,16 +138,16 @@ def test_ensure_pypi_advisory_db_update(cache_dir: str) -> None:
     assert source.total_count == 0
     assert len(source._advisories) == 0
 
-    assert source.has_security_advisory_for("ansible")
+    assert source.has_security_advisory_for(Dependency("ansible", "0.0.0"))
 
-    found, findings = source.is_vulnerable_package("doesnotexist", "1.0.0")
+    found, findings = source.is_vulnerable_package(Dependency("doesnotexist", "1.0.0"))
     assert found is False and len(findings) == 0
 
-    found, findings = source.is_vulnerable_package("ansible", "2.8.1")
+    found, findings = source.is_vulnerable_package(Dependency("ansible", "2.8.1"))
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("ansible", "2.8.3")
+    found, findings = source.is_vulnerable_package(Dependency("ansible", "2.8.3"))
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("httpx", "0.19.0")
+    found, findings = source.is_vulnerable_package(Dependency("httpx", "0.19.0"))
     assert found is True and len(findings) > 0
