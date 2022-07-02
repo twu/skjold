@@ -1,7 +1,7 @@
-from .github import Github
-from .pyup import PyUp
 from .gemnasium import Gemnasium
-from .pypa import PyPAAdvisoryDB
+from .github import Github
 from .osv import OSV
+from .pypa import PyPAAdvisoryDB
+from .pyup import PyUp
 
 __all__ = ("Github", "PyUp", "Gemnasium", "OSV", "PyPAAdvisoryDB")

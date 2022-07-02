@@ -1,11 +1,11 @@
 import os
-import pytest
 from typing import Any
-from skjold.core import Dependency
 
-from skjold.sources.gemnasium import GemnasiumSecurityAdvisory, Gemnasium
-
+import pytest
 import yaml
+
+from skjold.core import Dependency
+from skjold.sources.gemnasium import Gemnasium, GemnasiumSecurityAdvisory
 
 
 def gemnasium_advisory_yml(name: str) -> Any:

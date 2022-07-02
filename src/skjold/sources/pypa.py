@@ -7,10 +7,10 @@ from typing import List, Tuple
 import yaml
 
 from skjold.core import (
+    Dependency,
     SecurityAdvisory,
     SecurityAdvisorySource,
     SkjoldException,
-    Dependency,
 )
 from skjold.sources.osv import OSVSecurityAdvisory
 from skjold.tasks import register_source

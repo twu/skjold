@@ -1,18 +1,17 @@
 import io
 import os
-from typing import Optional, List, Tuple, Iterator
+from typing import Iterator, List, Optional, Tuple
 
 import pytest
+from packaging.utils import NormalizedName
 
+from skjold.core import Dependency
 from skjold.formats import (
     _extract_package_list_from,
-    read_requirements_txt_from,
     extract_dependencies_from_files,
+    read_requirements_txt_from,
 )
-from skjold.core import Dependency
 from skjold.tasks import Configuration
-
-from packaging.utils import NormalizedName
 
 
 def format_fixture_path_for(folder: str, filename: str) -> str:

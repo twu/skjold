@@ -2,9 +2,8 @@ import datetime
 import os
 from typing import Dict, Tuple
 
-from packaging.utils import canonicalize_name
-
 import yaml
+from packaging.utils import canonicalize_name
 
 
 class SkjoldIgnore:

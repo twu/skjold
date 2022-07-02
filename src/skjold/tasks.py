@@ -2,16 +2,12 @@
 import json
 import os
 import textwrap
-from typing import List, MutableMapping, Type, AbstractSet, Union, Dict, Any, Tuple, Set
+from typing import AbstractSet, Any, Dict, List, MutableMapping, Set, Tuple, Type, Union
 
 import click
 import toml
 
-from skjold.core import (
-    DependencyList,
-    SecurityAdvisorySource,
-    SkjoldException,
-)
+from skjold.core import DependencyList, SecurityAdvisorySource, SkjoldException
 from skjold.ignore import SkjoldIgnore
 
 _sources: MutableMapping[str, Type[SecurityAdvisorySource]] = {}

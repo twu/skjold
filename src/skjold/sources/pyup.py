@@ -3,12 +3,12 @@ import json
 import os
 import urllib.request
 from collections import defaultdict
-from typing import Tuple, List, Dict, Callable, Union, Any
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 from packaging import specifiers
-from packaging.utils import canonicalize_name, NormalizedName
+from packaging.utils import NormalizedName, canonicalize_name
 
-from skjold.core import SecurityAdvisorySource, SecurityAdvisory, Dependency
+from skjold.core import Dependency, SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source
 
 

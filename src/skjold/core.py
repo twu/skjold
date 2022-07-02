@@ -1,9 +1,9 @@
 import abc
-from dataclasses import dataclass
 import os
 import time
 from abc import ABCMeta, abstractmethod
-from typing import List, Tuple, MutableMapping, Sequence, Optional
+from dataclasses import dataclass
+from typing import List, MutableMapping, Optional, Sequence, Tuple
 
 from packaging.utils import NormalizedName, canonicalize_name
 

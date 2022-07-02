@@ -7,18 +7,18 @@ import sys
 from typing import List, TextIO
 
 import click
-import skjold.sources
 
-from skjold.formats import extract_dependencies_from_files, Format
+import skjold.sources
+from skjold.formats import Format, extract_dependencies_from_files
 from skjold.ignore import SkjoldIgnore
 from skjold.tasks import (
     Configuration,
     audit,
-    print_configuration,
-    report,
-    get_registered_sources,
     default_from_context,
     get_configuration_from_toml,
+    get_registered_sources,
+    print_configuration,
+    report,
 )
 
 configuration = click.make_pass_decorator(Configuration, ensure=True)

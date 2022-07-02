@@ -1,12 +1,12 @@
 import datetime
 import json
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 from unittest import mock
 
 import pytest
-from skjold.core import Dependency
 
-from skjold.sources.pyup import PyUpSecurityAdvisory, PyUp
+from skjold.core import Dependency
+from skjold.sources.pyup import PyUp, PyUpSecurityAdvisory
 
 
 @pytest.mark.parametrize(

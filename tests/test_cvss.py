@@ -1,6 +1,6 @@
 import pytest
 
-from skjold.cvss import parse_cvss, CVSS2, CVSS3
+from skjold.cvss import CVSS2, CVSS3, parse_cvss
 
 
 @pytest.mark.parametrize(

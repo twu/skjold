@@ -1,7 +1,7 @@
 import json
 import os
 import urllib.request
-from typing import List, Tuple, Callable, Any, Sequence, Optional, MutableMapping
+from typing import Any, Callable, List, MutableMapping, Optional, Sequence, Tuple
 
 from packaging import specifiers
 from packaging.utils import NormalizedName, canonicalize_name
@@ -9,8 +9,8 @@ from packaging.utils import NormalizedName, canonicalize_name
 from skjold.core import (
     Dependency,
     SecurityAdvisory,
-    SecurityAdvisorySource,
     SecurityAdvisoryList,
+    SecurityAdvisorySource,
 )
 from skjold.tasks import register_source
 

@@ -3,10 +3,9 @@ from typing import Any
 
 import pytest
 import yaml
-from skjold.core import Dependency
-
 from packaging.utils import NormalizedName
 
+from skjold.core import Dependency
 from skjold.sources.osv import OSV, OSVSecurityAdvisory, _osv_dev_api_request
 
 

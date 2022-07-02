@@ -2,11 +2,11 @@ import json
 import os
 import urllib.request
 from collections import defaultdict
-from typing import List, Tuple, Optional, Iterator, Dict, Any
+from typing import Any, Dict, Iterator, List, Optional, Tuple
 
-from packaging import specifiers
-from packaging.utils import canonicalize_name, NormalizedName
 import click
+from packaging import specifiers
+from packaging.utils import NormalizedName, canonicalize_name
 
 from skjold.core import Dependency, SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source

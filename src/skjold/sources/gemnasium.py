@@ -2,19 +2,19 @@ import os
 import tarfile
 import urllib.request
 from collections import defaultdict
-from typing import List, Tuple, Callable
+from typing import Callable, List, Tuple
 
-from packaging import specifiers
-from packaging.utils import canonicalize_name, NormalizedName
 import yaml
+from packaging import specifiers
+from packaging.utils import NormalizedName, canonicalize_name
 
-from skjold.cvss import parse_cvss
 from skjold.core import (
     Dependency,
     SecurityAdvisory,
     SecurityAdvisorySource,
     SkjoldException,
 )
+from skjold.cvss import parse_cvss
 from skjold.tasks import register_source
 
 

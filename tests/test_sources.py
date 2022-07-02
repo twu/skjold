@@ -1,16 +1,16 @@
 import os
-from typing import List, Any, Tuple
+from typing import Any, List, Tuple
 
 import pytest
+from packaging.utils import NormalizedName
 
 from skjold.core import (
     Dependency,
-    SecurityAdvisorySource,
     SecurityAdvisory,
+    SecurityAdvisorySource,
     SkjoldException,
 )
-from skjold.tasks import register_source, is_registered_source, Configuration
-from packaging.utils import NormalizedName
+from skjold.tasks import Configuration, is_registered_source, register_source
 
 
 class DummyAdvisory(SecurityAdvisory):

@@ -1,10 +1,10 @@
-from typing import Dict, Union, Any
+from typing import Any, Dict, Union
 
 import click
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from skjold.sources.github import GithubSecurityAdvisory, Github
+from skjold.sources.github import Github, GithubSecurityAdvisory
 
 
 @pytest.fixture

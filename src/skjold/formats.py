@@ -1,6 +1,6 @@
 import json
 import os
-from typing import TextIO, MutableMapping, Callable, Optional, Iterator, Sequence
+from typing import Callable, Iterator, MutableMapping, Optional, Sequence, TextIO
 
 import click
 import toml
