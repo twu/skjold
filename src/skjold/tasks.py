@@ -7,7 +7,11 @@ from typing import List, MutableMapping, Type, AbstractSet, Union, Dict, Any, Tu
 import click
 import toml
 
-from skjold.models import SecurityAdvisorySource, PackageList, SkjoldException
+from skjold.core import (
+    DependencyList,
+    SecurityAdvisorySource,
+    SkjoldException,
+)
 from skjold.ignore import SkjoldIgnore
 
 _sources: MutableMapping[str, Type[SecurityAdvisorySource]] = {}
@@ -206,7 +210,7 @@ def report(
 
 def audit(
     configuration: Configuration,
-    packages: PackageList,
+    dependencies: DependencyList,
     ignore: SkjoldIgnore,
 ) -> List[Dict[str, Any]]:
     """..."""
@@ -217,11 +221,9 @@ def audit(
             cache_dir=configuration.cache_dir, cache_expires=configuration.cache_expires
         )
 
-        for package_name, package_version in packages:
-            if source.has_security_advisory_for(package_name):
-                is_vulnerable, advisories = source.is_vulnerable_package(
-                    package_name, package_version
-                )
+        for dependency in dependencies:
+            if source.has_security_advisory_for(dependency):
+                is_vulnerable, advisories = source.is_vulnerable_package(dependency)
 
                 if is_vulnerable:
                     for advisory in advisories:
@@ -233,8 +235,8 @@ def audit(
                             {
                                 "identifier": advisory.identifier,
                                 "severity": advisory.severity,
-                                "name": package_name,
-                                "version": package_version,
+                                "name": dependency.name,
+                                "version": dependency.version,
                                 "versions": advisory.vulnerable_versions,
                                 "source": source.name,
                                 "summary": advisory.summary,
@@ -244,6 +246,10 @@ def audit(
                                     "ignored": is_ignored,
                                     "expires": entry.get("expires"),
                                     "reason": entry.get("reason"),
+                                },
+                                "__file__": {
+                                    "path": dependency.source[0],
+                                    "lineno": dependency.source[1],
                                 },
                             }
                         )

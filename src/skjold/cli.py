@@ -168,7 +168,7 @@ def audit_(
             "Please specify or configure at least one advisory source."
         )
 
-    packages = extract_package_list_from(config, file, file_format)
+    packages = list(extract_package_list_from(config, file, file_format))
 
     if config.verbose:
         click.secho("Checking ", nl=False, err=True)

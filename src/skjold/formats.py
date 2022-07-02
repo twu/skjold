@@ -5,18 +5,20 @@ from typing import TextIO, MutableMapping, Callable, Optional, Iterator
 import click
 import toml
 
-from skjold.models import PackageList, Package, SkjoldException
+from skjold.core import Dependency, SkjoldException
 from skjold.tasks import Configuration
 
 
-def read_poetry_lock_from(file: TextIO) -> Iterator[Package]:
+def read_poetry_lock_from(file: TextIO) -> Iterator[Dependency]:
     """Reads a poetry.lock given by path and yields 'package==version' items."""
     doc = toml.loads(file.read())
     for package in doc.get("package", []):
-        yield package["name"], package["version"]
+        yield Dependency(
+            name=package["name"], version=package["version"], source=(file.name, None)
+        )
 
 
-def read_pipfile_lock_from(file: TextIO) -> Iterator[Package]:
+def read_pipfile_lock_from(file: TextIO) -> Iterator[Dependency]:
     """Reads a Pipfile.lock given by path and yields 'package==version' items."""
     json_ = json.load(file)
     for namespace in ["develop", "default"]:
@@ -33,12 +35,14 @@ def read_pipfile_lock_from(file: TextIO) -> Iterator[Package]:
                 )
 
             package_version = pinned_package_version.replace("==", "")
-            yield package_name, package_version
+            yield Dependency(
+                name=package_name, version=package_version, source=(file.name, None)
+            )
 
 
-def read_requirements_txt_from(file: TextIO) -> Iterator[Package]:
+def read_requirements_txt_from(file: TextIO) -> Iterator[Dependency]:
     """Reads a requirements.txt given by path and yields 'package==version' items."""
-    for line in file.readlines():
+    for idx, line in enumerate(file.readlines()):
         # Skip empty lines or lines only containing a hash.
         if line.strip().startswith("--hash") or not len(line.strip()):
             continue
@@ -52,7 +56,9 @@ def read_requirements_txt_from(file: TextIO) -> Iterator[Package]:
         try:
             line = line.split(";")[0]
             package_name, package_version = line.strip().split(" ")[0].split("==")
-            yield package_name, package_version
+            yield Dependency(
+                name=package_name, version=package_version, source=(file.name, idx + 1)
+            )
         except (ValueError, KeyError):
             click.secho("Warning! ", err=True, nl=False, fg="yellow")
             click.secho(
@@ -76,7 +82,7 @@ class Format:  # pragma: no cover
 
 def extract_package_list_from(
     configuration: Configuration, file: TextIO, format_: Optional[str] = None
-) -> PackageList:
+) -> Iterator[Dependency]:
     """Extracts the list of tuples containing package name and version."""
     filename = os.path.basename(file.name)
 
@@ -89,8 +95,4 @@ def extract_package_list_from(
     if not reader_func:
         raise SkjoldException(f"Unsupported file or format '{format_}'!")
 
-    _packages = []
-    for package in reader_func(file):
-        _packages.append(package)
-
-    return _packages
+    yield from reader_func(file)

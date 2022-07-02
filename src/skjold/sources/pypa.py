@@ -6,7 +6,12 @@ from typing import List, Tuple
 
 import yaml
 
-from skjold.models import SecurityAdvisory, SecurityAdvisorySource, SkjoldException
+from skjold.core import (
+    SecurityAdvisory,
+    SecurityAdvisorySource,
+    SkjoldException,
+    Dependency,
+)
 from skjold.sources.osv import OSVSecurityAdvisory
 from skjold.tasks import register_source
 
@@ -38,7 +43,7 @@ class PyPAAdvisoryDB(SecurityAdvisorySource):
                     doc = yaml.load(obj_fh, Loader=yaml.SafeLoader)
                     advisories = OSVSecurityAdvisory.using(doc)
                     for advisory in advisories:
-                        self._advisories[advisory.package_name.lower()].append(advisory)
+                        self._advisories[advisory.canonical_name].append(advisory)
                 else:  # pragma: no cover
                     raise SkjoldException(
                         f"Unable to extract '{obj.name}' from source archive."
@@ -56,18 +61,18 @@ class PyPAAdvisoryDB(SecurityAdvisorySource):
             with open(self.path, "wb") as fh:
                 fh.write(response.read())
 
-    def has_security_advisory_for(self, package_name: str) -> bool:
-        return package_name.strip().lower() in self.advisories.keys()
+    def has_security_advisory_for(self, dependency: Dependency) -> bool:
+        return dependency.canonical_name in self.advisories.keys()
 
     def is_vulnerable_package(
-        self, package_name: str, package_version: str
+        self, dependency: Dependency
     ) -> Tuple[bool, List[SecurityAdvisory]]:
-        if not self.has_security_advisory_for(package_name):
+        if not self.has_security_advisory_for(dependency):
             return False, []
 
         advisories = []
-        for candidate in self.advisories[package_name.strip().lower()]:
-            if candidate.is_affected(package_version):
+        for candidate in self.advisories[dependency.canonical_name]:
+            if candidate.is_affected(dependency.version):
                 advisories.append(candidate)
 
         return len(advisories) > 0, advisories

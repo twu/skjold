@@ -1,16 +1,29 @@
 import abc
+from dataclasses import dataclass
 import os
 import time
 from abc import ABCMeta, abstractmethod
 from typing import List, Tuple, MutableMapping, Sequence, Optional
+
+from packaging.utils import NormalizedName, canonicalize_name
 
 
 class SkjoldException(Exception):
     pass
 
 
-Package = Tuple[str, str]
-PackageList = Sequence[Package]
+@dataclass(frozen=True)
+class Dependency:
+    name: str
+    version: str
+    source: Tuple[str, Optional[int]] = ("<unknown>", None)
+
+    @property
+    def canonical_name(self) -> NormalizedName:
+        return canonicalize_name(self.name)
+
+
+DependencyList = Sequence[Dependency]
 
 
 class SecurityAdvisory(metaclass=abc.ABCMeta):
@@ -29,6 +42,12 @@ class SecurityAdvisory(metaclass=abc.ABCMeta):
     @property
     @abstractmethod
     def package_name(self) -> str:
+        """Return package name of the affected package."""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def canonical_name(self) -> str:
         """Return package name of the affected package."""
         raise NotImplementedError
 
@@ -79,7 +98,7 @@ def is_outdated(path: str, max_age: int = 3600) -> bool:
 
 
 class SecurityAdvisorySource(metaclass=ABCMeta):
-    _advisories: MutableMapping[str, SecurityAdvisoryList] = {}
+    _advisories: MutableMapping[NormalizedName, SecurityAdvisoryList] = {}
     _cache_dir: str
     _cache_expires: int
     _name: str
@@ -95,7 +114,7 @@ class SecurityAdvisorySource(metaclass=ABCMeta):
         raise NotImplementedError
 
     @property
-    def advisories(self) -> MutableMapping[str, SecurityAdvisoryList]:
+    def advisories(self) -> MutableMapping[NormalizedName, SecurityAdvisoryList]:
         """Return list of SecurityAdvisories from the given source."""
         if self.requires_update:
             self.update()
@@ -107,7 +126,7 @@ class SecurityAdvisorySource(metaclass=ABCMeta):
 
     @property
     def requires_update(self) -> bool:
-        """ Return True if the source should be updated. False otherwise. """
+        """Return True if the source should be updated. False otherwise."""
         if self.path is None:
             return True
 
@@ -138,15 +157,15 @@ class SecurityAdvisorySource(metaclass=ABCMeta):
 
     @abstractmethod
     def is_vulnerable_package(
-        self, package_name: str, package_version: str
+        self, dependency: Dependency
     ) -> Tuple[bool, Sequence[SecurityAdvisory]]:
         raise NotImplementedError
 
     @abstractmethod
-    def has_security_advisory_for(self, package_name: str) -> bool:
+    def has_security_advisory_for(self, dependency: Dependency) -> bool:
         raise NotImplementedError
 
     def get_security_advisories(
         self,
-    ) -> MutableMapping[str, SecurityAdvisoryList]:
+    ) -> MutableMapping[NormalizedName, SecurityAdvisoryList]:
         return self.advisories

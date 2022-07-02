@@ -3,8 +3,14 @@ from typing import List, Any, Tuple
 
 import pytest
 
-from skjold.models import SecurityAdvisorySource, SecurityAdvisory, SkjoldException
+from skjold.core import (
+    Dependency,
+    SecurityAdvisorySource,
+    SecurityAdvisory,
+    SkjoldException,
+)
 from skjold.tasks import register_source, is_registered_source, Configuration
+from packaging.utils import NormalizedName
 
 
 class DummyAdvisory(SecurityAdvisory):
@@ -18,7 +24,11 @@ class DummyAdvisory(SecurityAdvisory):
 
     @property
     def package_name(self) -> str:
-        return "dummy"
+        return "DuMmY"
+
+    @property
+    def canonical_name(self) -> NormalizedName:
+        return NormalizedName(self.package_name)
 
     @property
     def url(self) -> str:
@@ -59,15 +69,15 @@ class DummyAdvisorySource(SecurityAdvisorySource):
         pass
 
     def update(self) -> None:
-        self._advisories = {"single": [DummyAdvisory()]}
+        self._advisories = {NormalizedName("single"): [DummyAdvisory()]}
 
-    def has_security_advisory_for(self, package_name: str) -> bool:
-        if package_name in ["vulnerable"]:
+    def has_security_advisory_for(self, dependency: Dependency) -> bool:
+        if dependency.canonical_name in ["vulnerable"]:
             return True
         return False
 
     def is_vulnerable_package(
-        self, package_name: str, package_version: str
+        self, dependency: Dependency
     ) -> Tuple[bool, List[SecurityAdvisory]]:
         return False, []
 

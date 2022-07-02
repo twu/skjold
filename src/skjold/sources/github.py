@@ -5,9 +5,10 @@ from collections import defaultdict
 from typing import List, Tuple, Optional, Iterator, Dict, Any
 
 from packaging import specifiers
+from packaging.utils import canonicalize_name, NormalizedName
 import click
 
-from skjold.models import SecurityAdvisory, SecurityAdvisorySource
+from skjold.core import Dependency, SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source
 
 
@@ -35,6 +36,10 @@ class GithubSecurityAdvisory(SecurityAdvisory):
     @property
     def package_name(self) -> str:
         return str(self._json["node"]["package"]["name"])
+
+    @property
+    def canonical_name(self) -> NormalizedName:
+        return canonicalize_name(self.package_name)
 
     @property
     def ecosystem(self) -> str:
@@ -184,7 +189,7 @@ class Github(SecurityAdvisorySource):
         with open(self.path, "rb") as fh:
             for item in json.load(fh):
                 obj = GithubSecurityAdvisory.using(item)
-                self._advisories[obj.package_name].append(obj)
+                self._advisories[obj.canonical_name].append(obj)
 
     @property
     def path(self) -> str:
@@ -195,15 +200,15 @@ class Github(SecurityAdvisorySource):
         with open(self.path, "w") as fh:
             json.dump(data, fh)
 
-    def has_security_advisory_for(self, package_name: str) -> bool:
-        return package_name.strip() in self.advisories.keys()
+    def has_security_advisory_for(self, dependency: Dependency) -> bool:
+        return dependency.canonical_name in self.advisories.keys()
 
     def is_vulnerable_package(
-        self, package_name: str, package_version: str
+        self, dependency: Dependency
     ) -> Tuple[bool, List[SecurityAdvisory]]:
         advisories = []
-        for candidate in self.advisories[package_name]:
-            if candidate.is_affected(package_version):
+        for candidate in self.advisories[dependency.canonical_name]:
+            if candidate.is_affected(dependency.version):
                 advisories.append(candidate)
 
         return len(advisories) > 0, advisories

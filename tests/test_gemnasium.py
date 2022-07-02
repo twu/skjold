@@ -1,6 +1,7 @@
 import os
 import pytest
 from typing import Any
+from skjold.core import Dependency
 
 from skjold.sources.gemnasium import GemnasiumSecurityAdvisory, Gemnasium
 
@@ -22,6 +23,7 @@ def test_ensure_gemnasium_advisory_from_yaml_with_cvss3_and_cvss2() -> None:
     """Ensure that we are able to create GemnasiumSecurityAdvisories from a given YAML document."""
     obj = GemnasiumSecurityAdvisory.using(gemnasium_advisory_yml("CVE-2019-19844.yml"))
     assert obj.package_name == "Django"
+    assert obj.canonical_name == "django"
     assert obj.identifier == "CVE-2019-19844"
     assert obj.source == "gemnasium"
     assert obj.severity == "CRITICAL"
@@ -44,6 +46,7 @@ def test_ensure_gemnasium_advisory_from_yaml_with_cvss2_only() -> None:
     obj._json.pop("cvss_v3", None)
 
     assert obj.package_name == "Pillow"
+    assert obj.canonical_name == "pillow"
     assert obj.identifier == "CVE-2014-1932"
     assert obj.source == "gemnasium"
     assert obj.severity == "MEDIUM"
@@ -129,6 +132,7 @@ def test_ensure_is_affected(
 ) -> None:
     obj = GemnasiumSecurityAdvisory.using(doc)
     assert obj.package_name == "package"
+    assert obj.canonical_name == "package"
     assert len(obj.vulnerable_version_range) == len(doc["affected_range"].split("||"))
     assert obj.is_affected(package_version) is is_vulnerable
 
@@ -141,16 +145,16 @@ def test_ensure_gemnasium_update(cache_dir: str) -> None:
     assert len(source._advisories) > 0
     assert source.total_count > 100
 
-    assert source.has_security_advisory_for("Django")
+    assert source.has_security_advisory_for(Dependency("Django", "X.X.X"))
 
-    found, findings = source.is_vulnerable_package("doesnotexist", "1.0.0")
+    found, findings = source.is_vulnerable_package(Dependency("doesnotexist", "1.0.0"))
     assert found is False and len(findings) == 0
 
-    found, findings = source.is_vulnerable_package("Django", "2.2.8")
+    found, findings = source.is_vulnerable_package(Dependency("Django", "2.2.8"))
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("django", "2.2.8")
+    found, findings = source.is_vulnerable_package(Dependency("django", "2.2.8"))
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("Django", "2.3.0")
+    found, findings = source.is_vulnerable_package(Dependency("Django", "2.3.0"))
     assert found is False and len(findings) == 0

@@ -4,6 +4,7 @@ from typing import List, Dict, Any
 from unittest import mock
 
 import pytest
+from skjold.core import Dependency
 
 from skjold.sources.pyup import PyUpSecurityAdvisory, PyUp
 
@@ -26,6 +27,7 @@ from skjold.sources.pyup import PyUpSecurityAdvisory, PyUp
 def test_ensure_using_build_obj(name: str, raw: Dict[Any, Any]) -> None:
     obj = PyUpSecurityAdvisory.using(name, raw)
     assert obj.package_name == "package_name"
+    assert obj.canonical_name == "package-name"
     assert obj.identifier == "pyup.io-XXXXXX"
     assert obj.source == "pyup"
     assert obj.summary == "Advisory summary."
@@ -84,22 +86,21 @@ def test_ensure_is_affected_single(
 
 
 @pytest.mark.parametrize(
-    "source_name, package_name, package_version, is_vulnerable",
+    "source_name, dependency, is_vulnerable",
     [
-        ("pyup", "werkzeug", "0.11.10", True),
-        ("pyup", "werkzeug", "0.9", True),
-        ("pyup", "werkzeug", "0.11.11", True),
-        ("pyup", "werkzeug", "0.12", True),
-        ("pyup", "werkzeug", "0.12", True),
-        ("pyup", "werkzeug", "1.0.0", False),
-        ("pyup", "werkzeug", "1.0.1", False),
-        ("pyup", "does-not-exist", "0", False),
+        ("pyup", Dependency("werkzeug", "0.11.10"), True),
+        ("pyup", Dependency("werkzeug", "0.9"), True),
+        ("pyup", Dependency("werkzeug", "0.11.11"), True),
+        ("pyup", Dependency("werkzeug", "0.12"), True),
+        ("pyup", Dependency("werkzeug", "0.12"), True),
+        ("pyup", Dependency("werkzeug", "1.0.0"), False),
+        ("pyup", Dependency("werkzeug", "1.0.1"), False),
+        ("pyup", Dependency("does-not-exist", "0"), False),
     ],
 )
 def test_ensure_source_is_affected_single(
     source_name: str,
-    package_name: str,
-    package_version: str,
+    dependency: Dependency,
     is_vulnerable: bool,
     cache_dir: str,
 ) -> None:
@@ -113,9 +114,9 @@ def test_ensure_source_is_affected_single(
     assert source.total_count > 0
 
     if is_vulnerable:
-        assert source.has_security_advisory_for(package_name)
+        assert source.has_security_advisory_for(dependency)
 
-    vulnerable, _ = source.is_vulnerable_package(package_name, package_version)
+    vulnerable, _ = source.is_vulnerable_package(dependency)
     assert vulnerable == is_vulnerable
 
 

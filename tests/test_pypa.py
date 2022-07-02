@@ -1,3 +1,4 @@
+from skjold.core import Dependency
 from skjold.sources.pypa import PyPAAdvisoryDB
 
 
@@ -10,16 +11,16 @@ def test_ensure_pypi_advisory_db_update(cache_dir: str) -> None:
     assert len(source._advisories) > 0
     assert source.total_count > 100
 
-    assert source.has_security_advisory_for("ansible")
+    assert source.has_security_advisory_for(Dependency("ansible", "0.0.0"))
 
-    found, findings = source.is_vulnerable_package("doesnotexist", "1.0.0")
+    found, findings = source.is_vulnerable_package(Dependency("doesnotexist", "1.0.0"))
     assert found is False and len(findings) == 0
 
-    found, findings = source.is_vulnerable_package("ansible", "2.8.1")
+    found, findings = source.is_vulnerable_package(Dependency("ansible", "2.8.1"))
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("ansible", "2.8.3")
+    found, findings = source.is_vulnerable_package(Dependency("ansible", "2.8.3"))
     assert found and len(findings) > 0
 
-    found, findings = source.is_vulnerable_package("httpx", "0.19.0")
+    found, findings = source.is_vulnerable_package(Dependency("httpx", "0.19.0"))
     assert found and len(findings) >= 0

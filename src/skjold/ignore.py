@@ -2,6 +2,8 @@ import datetime
 import os
 from typing import Dict, Tuple
 
+from packaging.utils import canonicalize_name
+
 import yaml
 
 
@@ -15,7 +17,7 @@ class SkjoldIgnore:
 
     def __init__(self, path: str):
         self._path = path
-        self._doc = {"version": "1.0", "ignore": {}}
+        self._doc = {"version": "1.1", "ignore": {}}
 
     @classmethod
     def using(cls, path: str) -> "SkjoldIgnore":
@@ -52,7 +54,7 @@ class SkjoldIgnore:
 
         self._doc["ignore"][identifier].append(
             {
-                "package": package_name,
+                "package": canonicalize_name(package_name),
                 "reason": reason,
                 "expires": expires.strftime(SkjoldIgnore.EXPIRES_FMT),
             }
@@ -69,7 +71,7 @@ class SkjoldIgnore:
             return False, {}
 
         for entry in self.entries.get(identifier, {}):
-            if entry["package"] == package_name:
+            if entry["package"] in {package_name, canonicalize_name(package_name)}:
                 dt = datetime.datetime.strptime(
                     f"{entry['expires']}", SkjoldIgnore.EXPIRES_FMT
                 )
