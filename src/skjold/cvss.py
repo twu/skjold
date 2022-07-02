@@ -1,9 +1,9 @@
 import math
-from typing import Dict, Any, Union
+from typing import Any, Dict, Union
 
 
 def round_up(n: float, decimals: int = 1) -> float:
-    multiplier = 10 ** decimals
+    multiplier = 10**decimals
     return float(math.ceil(n * multiplier) / multiplier)
 
 
