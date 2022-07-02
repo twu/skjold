@@ -4,7 +4,11 @@ from typing import Optional, List, Tuple, Iterator
 
 import pytest
 
-from skjold.formats import extract_package_list_from, read_requirements_txt_from
+from skjold.formats import (
+    _extract_package_list_from,
+    read_requirements_txt_from,
+    extract_dependencies_from_files,
+)
 from skjold.core import Dependency
 from skjold.tasks import Configuration
 
@@ -27,7 +31,7 @@ def test_extract_dependencies_using_minimal_examples(
     folder: str, filename: str
 ) -> None:
     with open(format_fixture_path_for(folder, filename)) as fh:
-        packages = list(extract_package_list_from(Configuration(), fh, None))
+        packages = list(_extract_package_list_from(Configuration(), fh, None))
         assert len(packages) > 0
 
 
@@ -48,7 +52,7 @@ def test_extract_package_versions_from_with_poetry_lock(
 ) -> None:
 
     with open(format_fixture_path_for(folder, filename)) as fh:
-        packages = list(extract_package_list_from(Configuration(), fh, format_))
+        packages = list(_extract_package_list_from(Configuration(), fh, format_))
         assert len(packages) > 0
 
 
@@ -126,6 +130,30 @@ def test_extract_package_versions_from(
             yield Dependency(name=name, version=version, source=("<stdin>", line_no))
 
     assert list(packages) == list(_get_dependencies(expected_package_list))
+
+
+def test_extract_dependencies_from_files() -> None:
+    path_a = format_fixture_path_for("minimal", "requirements.txt")
+    path_b = format_fixture_path_for("minimal", "poetry.lock")
+    path_c = format_fixture_path_for("minimal", "Pipfile.lock")
+    config = Configuration()
+
+    with open(path_a) as fha:
+        with open(path_b) as fhb:
+            with open(path_c) as fhc:
+                dependencies = list(
+                    extract_dependencies_from_files(config, [fha, fhb, fhc])
+                )
+
+    sources = set()
+    for dep in dependencies:
+        assert dep.canonical_name
+        assert dep.name
+        assert dep.version
+        assert dep.source[0]
+        sources.add(dep.source[0])
+
+    assert sources == set({path_a, path_b, path_c})
 
 
 def test_extract_package_versions_from_file_with_hashes() -> None:

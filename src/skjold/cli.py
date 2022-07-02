@@ -9,7 +9,7 @@ from typing import List, TextIO
 import click
 import skjold.sources
 
-from skjold.formats import extract_package_list_from, Format
+from skjold.formats import extract_dependencies_from_files, Format
 from skjold.ignore import SkjoldIgnore
 from skjold.tasks import (
     Configuration,
@@ -138,7 +138,7 @@ def config_(config: Configuration) -> None:
     show_default=False,
     multiple=True,
 )
-@click.argument("file", type=click.File(), default="./requirements.txt", required=False)
+@click.argument("files", nargs=-1, type=click.File())
 @configuration
 def audit_(
     config: Configuration,
@@ -147,7 +147,7 @@ def audit_(
     file_format: str,
     ignore_file: str,
     sources: List[str],
-    file: TextIO,
+    files: List[TextIO],
 ) -> None:
     """
     Checks a given dependency file against advisory databases.
@@ -168,7 +168,7 @@ def audit_(
             "Please specify or configure at least one advisory source."
         )
 
-    packages = list(extract_package_list_from(config, file, file_format))
+    packages = list(extract_dependencies_from_files(config, files, file_format))
 
     if config.verbose:
         click.secho("Checking ", nl=False, err=True)

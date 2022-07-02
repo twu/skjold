@@ -173,6 +173,43 @@ def test_cli_ensure_formats_are_handled_properly(
     assert json_[0]["source"] == "github"
 
 
+def test_cli_run_audit_with_multiple_different_files(
+    runner: click.testing.CliRunner,
+    cache_dir: str,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("SKJOLD_CACHE_DIR", cache_dir)
+    config = Configuration()
+    config.use({"report_only": False, "report_format": "json", "sources": ["pyup"]})
+
+    file_a = format_fixture_path_for("requirements.txt")
+    file_b = format_fixture_path_for("poetry.lock")
+    file_c = format_fixture_path_for("Pipfile.lock")
+    files = [file_a, file_b, file_c]
+
+    result = runner.invoke(
+        cli,
+        args=["audit", *files],
+        env={"SKJOLD_CACHE_DIR": cache_dir},
+        obj=config,
+    )
+
+    assert result.exception
+    assert result.exit_code == 1
+
+    findings = json.loads(result.stdout)
+    assert len(findings) > 0
+
+    sources = set({})
+    for finding in findings:
+        assert finding["name"] == "urllib3"
+        assert finding["version"] == "1.23"
+        assert finding["source"] == "pyup"
+        sources.add(finding["__file__"]["path"])
+
+    assert sources == set(files)
+
+
 def test_cli_configuration_override_via_cli(
     runner: click.testing.CliRunner,
     cache_dir: str,
