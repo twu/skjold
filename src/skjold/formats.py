@@ -42,7 +42,7 @@ def read_pipfile_lock_from(file: TextIO) -> Iterator[Dependency]:
 
 def read_requirements_txt_from(file: TextIO) -> Iterator[Dependency]:
     """Reads a requirements.txt given by path and yields 'package==version' items."""
-    for idx, line in enumerate(file.readlines()):
+    for line_no, line in enumerate(file.readlines()):
         # Skip empty lines or lines only containing a hash.
         if line.strip().startswith("--hash") or not len(line.strip()):
             continue
@@ -57,7 +57,9 @@ def read_requirements_txt_from(file: TextIO) -> Iterator[Dependency]:
             line = line.split(";")[0]
             package_name, package_version = line.strip().split(" ")[0].split("==")
             yield Dependency(
-                name=package_name, version=package_version, source=(file.name, idx + 1)
+                name=package_name,
+                version=package_version,
+                source=(file.name, line_no + 1),
             )
         except (ValueError, KeyError):
             click.secho("Warning! ", err=True, nl=False, fg="yellow")
