@@ -60,7 +60,7 @@ coverage = {extras = ["toml"], version = "^6"}
 pytest-cov = "^3.0.0"
 pytest = "^7.1.2"
 types-toml = "^0.10.7"
-types-PyYAML = "^6.0.9"
+types-PyYAML = "^6.0.10"
 
 [tool.skjold]
 report_only = false
