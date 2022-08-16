@@ -117,7 +117,7 @@ def test_osv_advisory_with_vulnerable_package_via_osv_api() -> None:
     assert vulnerabilities[0]
 
     obj = OSVSecurityAdvisory.using(vulnerabilities[0])[0]
-    assert obj.identifier == "PYSEC-2021-66"
+    assert obj.identifier in ["PYSEC-2021-66", "GHSA-g3rq-g295-4j3m"]
     assert obj.package_name == "jinja2"
     assert obj.summary.startswith(
         "This affects the package jinja2 from 0.0.0 and before 2.11.3."
