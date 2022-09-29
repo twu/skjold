@@ -52,7 +52,7 @@ toml = ">=0.10.0"
 [tool.poetry.dev-dependencies]
 pytest-watch = "^4.2.0"
 pytest-sugar = "^0.9.5"
-pytest-mock = "^3.8.2"
+pytest-mock = "^3.9.0"
 pre-commit = ">=2.2.0"
 black = ">=22.1.0"
 mypy = "^0.981"
