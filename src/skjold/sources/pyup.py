@@ -36,7 +36,10 @@ class PyUpSecurityAdvisory(SecurityAdvisory):
 
     @property
     def url(self) -> str:
-        return f"https://pyup.io/{self.identifier}"
+        path = self._json.get("more_info_path")
+        if not path:
+            return ""
+        return f"https://pyup.io{path}"
 
     @property
     def references(self) -> List[str]:

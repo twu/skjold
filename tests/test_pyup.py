@@ -10,7 +10,7 @@ from skjold.sources.pyup import PyUp, PyUpSecurityAdvisory
 
 
 @pytest.mark.parametrize(
-    "name, raw",
+    "name, raw, expected_url",
     [
         (
             "package_name",
@@ -21,10 +21,25 @@ from skjold.sources.pyup import PyUp, PyUpSecurityAdvisory
                 "specs": ["<1.0.0", ">=1.1,<1.1.1"],
                 "v": "<1.0.4,>=1.1,<1.1.1",
             },
-        )
+            "",
+        ),
+        (
+            "package_name",
+            {
+                "advisory": "Advisory summary.",
+                "cve": "CVE-200X-XXXX",
+                "id": "pyup.io-XXXXXX",
+                "specs": ["<1.0.0", ">=1.1,<1.1.1"],
+                "v": "<1.0.4,>=1.1,<1.1.1",
+                "more_info_path": "/vulnerabilities/CVE-1970-0001/12345/",
+            },
+            "https://pyup.io/vulnerabilities/CVE-1970-0001/12345/",
+        ),
     ],
 )
-def test_ensure_using_build_obj(name: str, raw: Dict[Any, Any]) -> None:
+def test_ensure_using_build_obj(
+    name: str, raw: Dict[Any, Any], expected_url: str
+) -> None:
     obj = PyUpSecurityAdvisory.using(name, raw)
     assert obj.package_name == "package_name"
     assert obj.canonical_name == "package-name"
@@ -32,7 +47,7 @@ def test_ensure_using_build_obj(name: str, raw: Dict[Any, Any]) -> None:
     assert obj.source == "pyup"
     assert obj.summary == "Advisory summary."
     assert obj.severity == "UNKNOWN"
-    assert obj.url == "https://pyup.io/pyup.io-XXXXXX"
+    assert obj.url == expected_url
     assert obj.references == []
     assert obj.vulnerable_versions == "<1.0.0,<1.1.1,>=1.1"
 
