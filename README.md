@@ -160,7 +160,7 @@ $ skjold audit -s pyup -i <path-to-file> poetry.lock
 ```toml
 [tool.skjold]
 sources = ["github", "pyup", "gemnasium"]  # Sources to check against.
-report_only = true                         # Report only, always exit with zero.
+report_only = false                        # Exit with non-zero exit code on findings.
 report_format = 'json'                     # Output findings as `json`. Default is 'cli'.
 cache_dir = '.skjold_cache'                # Cache location (default: `~/.skjold/cache`).
 cache_expires = 86400                      # Cache max. age.
@@ -172,7 +172,7 @@ To take a look at the current configuration / defaults run:
 ```shell
 $ skjold config
 sources: ['pyup', 'github', 'gemnasium']
-report_only: True
+report_only: False
 report_format: json
 verbose: False
 cache_dir: .skjold_cache
