@@ -43,7 +43,7 @@ def test_ensure_using_build_obj(
     obj = PyUpSecurityAdvisory.using(name, raw)
     assert obj.package_name == "package_name"
     assert obj.canonical_name == "package-name"
-    assert obj.identifier == "pyup.io-XXXXXX"
+    assert obj.identifier == "CVE-200X-XXXX"
     assert obj.source == "pyup"
     assert obj.summary == "Advisory summary."
     assert obj.severity == "UNKNOWN"
@@ -144,7 +144,7 @@ def pyup_advisories_with_metadata() -> Any:
       },
       "package": [{
         "advisory": "...",
-        "cve": null,
+        "cve": "CVE-200X-XXXX",
         "id": "pyup.io-XXXXX",
         "specs": [">0", "<0"],
         "v": ">0,<0"

@@ -24,7 +24,7 @@ class PyUpSecurityAdvisory(SecurityAdvisory):
 
     @property
     def identifier(self) -> str:
-        return self._json["id"]
+        return self._json["cve"]
 
     @property
     def source(self) -> str:
