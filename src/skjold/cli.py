@@ -165,7 +165,9 @@ def audit_(
 
     if len(config.sources) == 0:
         raise click.ClickException(
-            "Please specify or configure at least one advisory source."
+            click.style(
+                "Please specify or configure at least one advisory source!", fg="red"
+            )
         )
 
     packages = list(extract_dependencies_from_files(config, files, file_format))
