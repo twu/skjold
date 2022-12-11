@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterator, List, Optional, Tuple
 import click
 from packaging import specifiers
 from packaging.utils import NormalizedName, canonicalize_name
+from packaging.version import Version
 
 from skjold.core import Dependency, SecurityAdvisory, SecurityAdvisorySource
 from skjold.tasks import register_source
@@ -82,8 +83,8 @@ class GithubSecurityAdvisory(SecurityAdvisory):
         return str(self.vulnerable_version_range)
 
     def is_affected(self, version: str) -> bool:
-        version = specifiers.parse(version)
-        return version in self.vulnerable_version_range
+        version_ = Version(version)
+        return version_ in self.vulnerable_version_range
 
     @property
     def url(self) -> str:

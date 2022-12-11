@@ -5,6 +5,7 @@ from typing import Any, Callable, List, MutableMapping, Optional, Sequence, Tupl
 
 from packaging import specifiers
 from packaging.utils import NormalizedName, canonicalize_name
+from packaging.version import Version
 
 from skjold.core import (
     Dependency,
@@ -110,7 +111,7 @@ class OSVSecurityAdvisory(SecurityAdvisory):
         return "||".join([str(x) for x in self.vulnerable_version_range])
 
     def is_affected(self, version: str) -> bool:
-        version_ = specifiers.parse(version)
+        version_ = Version(version)
         allows_: Callable[[specifiers.SpecifierSet], bool] = (
             lambda x: True if version_ in x else False
         )
