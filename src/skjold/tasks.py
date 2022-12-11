@@ -55,10 +55,6 @@ class Configuration:
         # self.verbose = bool(config.get("verbose", self.verbose))
 
         # Sources
-        if not len(self.sources):
-            click.secho(
-                "Warning: No advisory sources configured!", err=True, fg="yellow"
-            )
         for source_name in self.sources:
             if not is_registered_source(source_name):
                 raise click.ClickException(
