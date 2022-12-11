@@ -7,6 +7,7 @@ from typing import Callable, List, Tuple
 import yaml
 from packaging import specifiers
 from packaging.utils import NormalizedName, canonicalize_name
+from packaging.version import Version
 
 from skjold.core import (
     Dependency,
@@ -78,21 +79,26 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
         if not affected_range:
             return [specifiers.SpecifierSet(">=0.0.0", prereleases=True)]
 
-        return [
-            specifiers.SpecifierSet(x, prereleases=True)
-            for x in affected_range.split("||")
-        ]
+        vulnerable_versions = []
+
+        for spec in affected_range.split("||"):
+            # Hotfix for invalid/legacy version specifier: '<2.2.' according to CVE description.
+            # See pypi/Django/CVE-2019-14233.yml#L10 in gemnasium-db.
+            if self.canonical_name == "django" and self.identifier == "CVE-2019-14233":
+                spec = "<2.2.4"
+
+            vulnerable_versions.append(specifiers.SpecifierSet(spec, prereleases=True))
+        return vulnerable_versions
 
     @property
     def vulnerable_versions(self) -> str:
         return ",".join([str(x) for x in self.vulnerable_version_range])
 
     def is_affected(self, version: str) -> bool:
-        version_ = specifiers.parse(version)
+        version_ = Version(version)
         allows_: Callable[[specifiers.SpecifierSet], bool] = (
             lambda x: True if version_ in x else False
         )
-        # affected_versions = map(lambda x: x.allows(version), self.vulnerable_version_range)
         affected_versions = map(allows_, self.vulnerable_version_range)
         return any(affected_versions)
 
