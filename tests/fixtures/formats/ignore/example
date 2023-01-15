@@ -4,19 +4,19 @@ ignore:
     package: urllib3
     reason: No remediation available.
   CVE-2019-11236:
-  - expires: 2023-01-01T00:00:00+0000
+  - expires: 2030-01-01T00:00:00+0000
     package: urllib3
     reason: No remediation available.
   CVE-2019-11324:
-  - expires: 2023-01-01T00:00:00+0000
+  - expires: 2030-01-01T00:00:00+0000
     package: urllib3
     reason: No remediation available.
   CVE-2020-26137:
-  - expires: 2023-01-01T00:00:00+0000
+  - expires: 2030-01-01T00:00:00+0000
     package: urllib3
     reason: No remediation available.
   PYSEC-2020-149:
-  - expires: 2023-01-01T00:00:00+0000
+  - expires: 2030-01-01T00:00:00+0000
     package: urllib3
     reason: No remediation available.
 version: "1.0"
