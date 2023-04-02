@@ -108,8 +108,9 @@ def test_ensure_is_affected_single(
         ("pyup", Dependency("werkzeug", "0.11.11"), True),
         ("pyup", Dependency("werkzeug", "0.12"), True),
         ("pyup", Dependency("werkzeug", "0.12"), True),
-        ("pyup", Dependency("werkzeug", "1.0.0"), False),
-        ("pyup", Dependency("werkzeug", "1.0.1"), False),
+        ("pyup", Dependency("werkzeug", "1.0.0"), True),
+        ("pyup", Dependency("werkzeug", "1.0.1"), True),
+        ("pyup", Dependency("werkzeug", "2.2.3"), False),
         ("pyup", Dependency("does-not-exist", "0"), False),
     ],
 )
