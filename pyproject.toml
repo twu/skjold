@@ -58,7 +58,7 @@ black = ">=22.1.0"
 mypy = "^0.991"
 coverage = {extras = ["toml"], version = "^7"}
 pytest-cov = "^4.0.0"
-pytest = "^7.2.1"
+pytest = "^7.3.0"
 types-toml = "^0.10.8"
 types-PyYAML = "^6.0.12"
 
