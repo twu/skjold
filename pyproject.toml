@@ -55,7 +55,7 @@ pytest-sugar = "^0.9.7"
 pytest-mock = "^3.10.0"
 pre-commit = ">=2.2.0"
 black = ">=22.1.0"
-mypy = "^0.991"
+mypy = "^1.2"
 coverage = {extras = ["toml"], version = "^7"}
 pytest-cov = "^4.0.0"
 pytest = "^7.2.1"
