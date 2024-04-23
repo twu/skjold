@@ -72,7 +72,7 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
         affected_range = self._json["affected_range"]
 
         # Gemnasium sometimes uses spaces instead of commas for ranges
-        affected_range = affected_range.strip().replace(' ',',')
+        affected_range = affected_range.strip().replace(' ', ',')
 
         # Gemnasium seems to invalidate/withdraw advisories by marking them this way.
         # See pypi/pyspark/CVE-2020-27218.yml#L11 in gemnasium-db.
