@@ -71,6 +71,9 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
     def vulnerable_version_range(self) -> List[specifiers.SpecifierSet]:
         affected_range = self._json["affected_range"]
 
+        # Gemnasium sometimes uses spaces instead of commas for ranges
+        affected_range = affected_range.strip().replace(' ',',')
+
         # Gemnasium seems to invalidate/withdraw advisories by marking them this way.
         # See pypi/pyspark/CVE-2020-27218.yml#L11 in gemnasium-db.
         if affected_range in {"(,0)"}:
@@ -82,11 +85,6 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
         vulnerable_versions = []
 
         for spec in affected_range.split("||"):
-            # Hotfix for invalid/legacy version specifier: '<2.2.' according to CVE description.
-            # See pypi/Django/CVE-2019-14233.yml#L10 in gemnasium-db.
-            if self.canonical_name == "django" and self.identifier == "CVE-2019-14233":
-                spec = "<2.2.4"
-
             vulnerable_versions.append(specifiers.SpecifierSet(spec, prereleases=True))
         return vulnerable_versions
 
