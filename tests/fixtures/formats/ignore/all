@@ -23,4 +23,9 @@ ignore:
   - expires: 2100-01-01T00:00:00+0000
     package: urllib3
     reason: No remediation available.
+  PYSEC-2023-212:
+  - expires: 2100-01-01T00:00:00+0000
+    package: urllib3
+    reason: No remediation available.
+
 version: "1.0"

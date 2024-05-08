@@ -110,7 +110,8 @@ def test_ensure_is_affected_single(
         ("pyup", Dependency("werkzeug", "0.12"), True),
         ("pyup", Dependency("werkzeug", "1.0.0"), True),
         ("pyup", Dependency("werkzeug", "1.0.1"), True),
-        ("pyup", Dependency("werkzeug", "2.2.3"), False),
+        ("pyup", Dependency("werkzeug", "2.2.3"), True),
+        ("pyup", Dependency("werkzeug", "3.0.1"), False),
         ("pyup", Dependency("does-not-exist", "0"), False),
     ],
 )
@@ -120,7 +121,6 @@ def test_ensure_source_is_affected_single(
     is_vulnerable: bool,
     cache_dir: str,
 ) -> None:
-
     from skjold.tasks import _sources
 
     assert source_name in _sources

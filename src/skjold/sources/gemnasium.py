@@ -38,7 +38,6 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
 
     @property
     def severity(self) -> str:
-
         for field in ["cvss_v3", "cvss_v2"]:
             vector = self._json.get(field, None)
             if vector:
@@ -72,7 +71,7 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
         affected_range = self._json["affected_range"]
 
         # Gemnasium sometimes uses spaces instead of commas for ranges
-        affected_range = affected_range.strip().replace(' ', ',')
+        affected_range = affected_range.strip().replace(" ", ",")
 
         # Gemnasium seems to invalidate/withdraw advisories by marking them this way.
         # See pypi/pyspark/CVE-2020-27218.yml#L11 in gemnasium-db.
@@ -85,6 +84,11 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
         vulnerable_versions = []
 
         for spec in affected_range.split("||"):
+            # Workaround to ensure that we strip any trailing dots from ranges/specs e.g. >=1.2.,<=2.0.
+            spec = spec.replace(".,", ",")
+            if "," in spec and spec.endswith("."):
+                spec = spec[:-1]
+
             vulnerable_versions.append(specifiers.SpecifierSet(spec, prereleases=True))
         return vulnerable_versions
 
@@ -102,7 +106,6 @@ class GemnasiumSecurityAdvisory(SecurityAdvisory):
 
 
 class Gemnasium(SecurityAdvisorySource):
-
     _url = "https://gitlab.com/gitlab-org/security-products/gemnasium-db/-/archive/master/gemnasium-db-master.tar.gz"
     _name = "gemnasium"
 

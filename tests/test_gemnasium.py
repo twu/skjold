@@ -160,4 +160,7 @@ def test_ensure_gemnasium_update(cache_dir: str) -> None:
     assert found and len(findings) > 0
 
     found, findings = source.is_vulnerable_package(Dependency("Django", "2.3.0"))
+    assert found is True and len(findings) > 0
+
+    found, findings = source.is_vulnerable_package(Dependency("Django", "3.2.25"))
     assert found is False and len(findings) == 0
