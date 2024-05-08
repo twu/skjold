@@ -1,6 +1,6 @@
 [tool.poetry]
 name = 'skjold'
-version = '0.6.1'
+version = '0.6.2'
 description = 'Security audit Python project dependencies against security advisory databases.'
 authors = ["Thomas Wurmitzer <stdin@twu.codes>"]
 packages = [{ include="skjold/**/*.py", from = "src" }]
