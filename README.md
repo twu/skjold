@@ -21,6 +21,7 @@ It currently supports fetching advisories from the following sources:
 | Source | Name | Notes |
 | ------:|:----:|:------|
 | [GitHub Advisory Database](https://github.com/advisories) | `github` | Requires Access Token (See [Github](#github)). |
+| [GitHub Repository Advisories](https://docs.github.com/en/code-security/security-advisories/working-with-repository-security-advisories) | `github-repo` | Requires Access Token (See [Github](#github)).<br/> Sends package information to PyPI and GitHub APIs (See [below](#github-repository-advisories)). |
 | [PyUP.io safety-db](https://github.com/pyupio/safety-db) | `pyup` | |
 | [GitLab gemnasium-db](https://gitlab.com/gitlab-org/security-products/gemnasium-db) | `gemnasium` | |
 | [PYPA Advisory Database](https://github.com/pypa/advisory-db) | `pypa` | Only supports `ECOSYSTEM`! |
@@ -183,6 +184,10 @@ ignore_file = '.skjoldignore'
 #### Github
 
 For the `github` source to work you'll need to provide a Github API Token via an `ENV` variable named `SKJOLD_GITHUB_API_TOKEN`. You can [create a new Github Access Token here](https://github.com/settings/tokens). You *do not* have to give it *any* permissions as it is only required to query the [GitHub GraphQL API v4](https://developer.github.com/v4/) API.
+
+#### Github Repository Advisories
+
+The `github-repo` source reads advisories published on each package's own GitHub repository (found via PyPI metadata), which may not be in the GitHub Advisory Database yet. Their version ranges are free-form and inconsistent; missing or unparseable ranges are reported as affecting all versions.
 
 ### Version Control Integration
 To use `skjold` with the excellent [pre-commit](https://pre-commit.com/) framework add the following to the projects `.pre-commit-config.yaml` after [installation](https://pre-commit.com/#install).
