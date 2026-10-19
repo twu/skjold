@@ -219,6 +219,12 @@ class GithubRepo(SecurityAdvisorySource):
     ) -> Tuple[bool, Sequence[SecurityAdvisory]]:
         repo = find_github_repo(dependency.canonical_name, dependency.version)
         if not repo:
+            if self._verbose:
+                click.secho(
+                    f"github-repo: no GitHub repo found for {dependency.name}=={dependency.version}, skipping",
+                    err=True,
+                    fg="yellow",
+                )
             return False, []
 
         advisories = []
@@ -234,11 +240,27 @@ class GithubRepo(SecurityAdvisorySource):
                     and canonicalize_name(package["name"]) != dependency.canonical_name
                 ):
                     continue
+                vulnerable_range = vuln.get("vulnerable_version_range") or ""
+                patched = vuln.get("patched_versions") or ""
+                if self._verbose:
+                    try:
+                        ranges = parse_version_range(vulnerable_range, patched)
+                        if any(len(x) == 0 for x in ranges):
+                            click.secho(
+                                f"github-repo: {item['ghsa_id']} has no version range, "
+                                f"reporting all versions of {dependency.name} as affected",
+                                err=True,
+                                fg="yellow",
+                            )
+                    except specifiers.InvalidSpecifier:
+                        click.secho(
+                            f"github-repo: {item['ghsa_id']} has unparseable range '{vulnerable_range}', "
+                            f"reporting all versions of {dependency.name} as affected",
+                            err=True,
+                            fg="yellow",
+                        )
                 advisory = GithubRepoSecurityAdvisory.using(
-                    item,
-                    dependency.name,
-                    vuln.get("vulnerable_version_range") or "",
-                    vuln.get("patched_versions") or "",
+                    item, dependency.name, vulnerable_range, patched
                 )
                 if advisory.is_affected(dependency.version):
                     advisories.append(advisory)

@@ -201,3 +201,62 @@ def test_is_vulnerable_package() -> None:
 
         is_vulnerable, found = source.is_vulnerable_package(Dependency("pkg", "2.1"))
         assert not is_vulnerable
+
+
+@pytest.mark.parametrize("verbose", [True, False])
+def test_verbose_no_repo(verbose: bool, capsys: pytest.CaptureFixture) -> None:
+    with mock.patch("skjold.sources.github_repo.find_github_repo", return_value=None):
+        source = GithubRepo("/nonexistent", verbose=verbose)
+        assert source.is_vulnerable_package(Dependency("pkg", "1.0")) == (False, [])
+
+    err = capsys.readouterr().err
+    assert ("no GitHub repo found for pkg==1.0" in err) is verbose
+
+
+@pytest.mark.parametrize("verbose", [True, False])
+@pytest.mark.parametrize(
+    "vulnerable_range, patched, message",
+    [
+        (
+            ">=1.3.3 and <= 1.4.1",
+            "1.3.5, 1.4.2",
+            "GHSA-dddd has unparseable range '>=1.3.3 and <= 1.4.1'",
+        ),
+        ("", "", "GHSA-dddd has no version range"),
+    ],
+)
+def test_verbose_range_warnings(
+    verbose: bool,
+    vulnerable_range: str,
+    patched: str,
+    message: str,
+    capsys: pytest.CaptureFixture,
+) -> None:
+    advisories = [
+        {
+            "ghsa_id": "GHSA-dddd",
+            "html_url": "https://github.com/a/b/security/advisories/GHSA-dddd",
+            "summary": "odd range",
+            "severity": "low",
+            "state": "published",
+            "withdrawn_at": None,
+            "vulnerabilities": [
+                {
+                    "package": {"ecosystem": "pip", "name": "pkg"},
+                    "vulnerable_version_range": vulnerable_range,
+                    "patched_versions": patched,
+                },
+            ],
+        },
+    ]
+    with mock.patch(
+        "skjold.sources.github_repo.find_github_repo", return_value="a/b"
+    ), mock.patch(
+        "skjold.sources.github_repo._fetch_repo_advisories", return_value=advisories
+    ):
+        source = GithubRepo("/nonexistent", verbose=verbose)
+        is_vulnerable, _ = source.is_vulnerable_package(Dependency("pkg", "9.0"))
+        assert is_vulnerable
+
+    err = capsys.readouterr().err
+    assert (message in err) is verbose
