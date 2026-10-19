@@ -15,6 +15,8 @@ from skjold.core import (
     SecurityAdvisory,
     SecurityAdvisoryList,
     SecurityAdvisorySource,
+    SkjoldException,
+    is_outdated,
 )
 from skjold.tasks import register_source
 
@@ -214,10 +216,34 @@ class GithubRepo(SecurityAdvisorySource):
     def has_security_advisory_for(self, dependency: Dependency) -> bool:
         return True
 
+    def _lookup(self, dependency: Dependency) -> Tuple[Optional[str], List[dict]]:
+        """Return the package's repo and its raw advisories, cached for cache_expires."""
+        # Names and versions come from lock files; keep them from escaping the cache dir.
+        if not re.fullmatch(r"[a-z0-9-]+", dependency.canonical_name):
+            raise SkjoldException(f"Invalid package name '{dependency.name}'")
+        cache_file = os.path.join(
+            self._cache_dir,
+            "github-repo",
+            f"{dependency.canonical_name}=={Version(dependency.version)}.json",
+        )
+        if os.path.exists(cache_file) and not is_outdated(
+            cache_file, self._cache_expires
+        ):
+            with open(cache_file) as fh:
+                cached = json.load(fh)
+            return cached["repo"], cached["advisories"]
+
+        repo = find_github_repo(dependency.canonical_name, dependency.version)
+        advisories = _fetch_repo_advisories(repo) if repo else []
+        os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+        with open(cache_file, "w") as fh:
+            json.dump({"repo": repo, "advisories": advisories}, fh)
+        return repo, advisories
+
     def is_vulnerable_package(
         self, dependency: Dependency
     ) -> Tuple[bool, Sequence[SecurityAdvisory]]:
-        repo = find_github_repo(dependency.canonical_name, dependency.version)
+        repo, repo_advisories = self._lookup(dependency)
         if not repo:
             if self._verbose:
                 click.secho(
@@ -228,7 +254,7 @@ class GithubRepo(SecurityAdvisorySource):
             return False, []
 
         advisories = []
-        for item in _fetch_repo_advisories(repo):
+        for item in repo_advisories:
             if item.get("state") != "published" or item.get("withdrawn_at"):
                 continue
             for vuln in item.get("vulnerabilities") or []:

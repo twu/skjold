@@ -1,10 +1,13 @@
 import os
+from pathlib import Path
+from typing import Type
 from unittest import mock
 
 import click
 import pytest
+from packaging.version import InvalidVersion
 
-from skjold.core import Dependency
+from skjold.core import Dependency, SkjoldException
 from skjold.sources.github_repo import (
     GithubRepo,
     GithubRepoSecurityAdvisory,
@@ -136,7 +139,44 @@ def test_fetch_repo_advisories_missing_repo() -> None:
         assert _fetch_repo_advisories("a/b") == []
 
 
-def test_is_vulnerable_package() -> None:
+def test_lookup_is_cached(tmp_path: Path) -> None:
+    advisories = [{"ghsa_id": "GHSA-1"}]
+    with mock.patch(
+        "skjold.sources.github_repo.find_github_repo", return_value="a/b"
+    ) as find, mock.patch(
+        "skjold.sources.github_repo._fetch_repo_advisories", return_value=advisories
+    ) as fetch:
+        source = GithubRepo(str(tmp_path), cache_expires=3600)
+        assert source._lookup(Dependency("Pkg", "1.0")) == ("a/b", advisories)
+        assert source._lookup(Dependency("pkg", "1.0")) == ("a/b", advisories)
+        assert find.call_count == 1
+        assert fetch.call_count == 1
+
+        GithubRepo(str(tmp_path), cache_expires=0)._lookup(Dependency("pkg", "1.0"))
+        assert fetch.call_count == 2
+
+
+@pytest.mark.parametrize(
+    "dependency, error",
+    [
+        (Dependency("/tmp/evil", "1.0"), SkjoldException),
+        (Dependency("pkg", "1.0/../../evil"), InvalidVersion),
+    ],
+)
+def test_lookup_rejects_paths(
+    dependency: Dependency, error: Type[Exception], tmp_path: Path
+) -> None:
+    cache_dir = tmp_path / "cache"
+    with mock.patch(
+        "skjold.sources.github_repo.find_github_repo", return_value=None
+    ) as find:
+        with pytest.raises(error):
+            GithubRepo(str(cache_dir), cache_expires=3600)._lookup(dependency)
+    assert not find.called
+    assert list(tmp_path.rglob("*.json")) == []
+
+
+def test_is_vulnerable_package(tmp_path: Path) -> None:
     advisories = [
         {
             "ghsa_id": "GHSA-aaaa",
@@ -193,7 +233,7 @@ def test_is_vulnerable_package() -> None:
     ), mock.patch(
         "skjold.sources.github_repo._fetch_repo_advisories", return_value=advisories
     ):
-        source = GithubRepo("/nonexistent")
+        source = GithubRepo(str(tmp_path))
         is_vulnerable, found = source.is_vulnerable_package(Dependency("pkg", "1.5"))
         assert is_vulnerable
         assert [a.identifier for a in found] == ["GHSA-aaaa", "GHSA-cccc"]
@@ -204,9 +244,11 @@ def test_is_vulnerable_package() -> None:
 
 
 @pytest.mark.parametrize("verbose", [True, False])
-def test_verbose_no_repo(verbose: bool, capsys: pytest.CaptureFixture) -> None:
+def test_verbose_no_repo(
+    verbose: bool, capsys: pytest.CaptureFixture, tmp_path: Path
+) -> None:
     with mock.patch("skjold.sources.github_repo.find_github_repo", return_value=None):
-        source = GithubRepo("/nonexistent", verbose=verbose)
+        source = GithubRepo(str(tmp_path), verbose=verbose)
         assert source.is_vulnerable_package(Dependency("pkg", "1.0")) == (False, [])
 
     err = capsys.readouterr().err
@@ -231,6 +273,7 @@ def test_verbose_range_warnings(
     patched: str,
     message: str,
     capsys: pytest.CaptureFixture,
+    tmp_path: Path,
 ) -> None:
     advisories = [
         {
@@ -254,7 +297,7 @@ def test_verbose_range_warnings(
     ), mock.patch(
         "skjold.sources.github_repo._fetch_repo_advisories", return_value=advisories
     ):
-        source = GithubRepo("/nonexistent", verbose=verbose)
+        source = GithubRepo(str(tmp_path), verbose=verbose)
         is_vulnerable, _ = source.is_vulnerable_package(Dependency("pkg", "9.0"))
         assert is_vulnerable
 
