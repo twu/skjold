@@ -102,10 +102,14 @@ class SecurityAdvisorySource(metaclass=ABCMeta):
     _cache_dir: str
     _cache_expires: int
     _name: str
+    _verbose: bool
 
-    def __init__(self, cache_dir: str, cache_expires: int = 0) -> None:
+    def __init__(
+        self, cache_dir: str, cache_expires: int = 0, verbose: bool = False
+    ) -> None:
         self._cache_dir = cache_dir
         self._cache_expires = cache_expires
+        self._verbose = verbose
 
     @property
     @abstractmethod

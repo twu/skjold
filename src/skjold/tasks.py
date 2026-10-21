@@ -1,4 +1,5 @@
 """Contains actual task implementations that can be either called directly or via the click cli."""
+
 import json
 import os
 import textwrap
@@ -214,7 +215,9 @@ def audit(
     findings = []
     for name in configuration.sources:
         source = _sources[name](
-            cache_dir=configuration.cache_dir, cache_expires=configuration.cache_expires
+            cache_dir=configuration.cache_dir,
+            cache_expires=configuration.cache_expires,
+            verbose=configuration.verbose,
         )
 
         for dependency in dependencies:
